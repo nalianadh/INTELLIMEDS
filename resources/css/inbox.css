@@ -1,0 +1,62 @@
+/* Inbox Main Store Custom Styles */
+.inbox-list {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(32,66,92,0.08);
+    padding: 32px;
+    margin-top: 24px;
+}
+.inbox-list h4 {
+    font-size: 1.4rem;
+    color: #20425c;
+    margin-bottom: 24px;
+    letter-spacing: 1px;
+}
+.inbox-list .table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    font-size: 1rem;
+}
+.inbox-list th, .inbox-list td {
+    padding: 14px 18px;
+    text-align: left;
+}
+.inbox-list thead th {
+    background: linear-gradient(90deg, #e3f0fc 0%, #f5f5f5 100%);
+    color: #20425c;
+    font-weight: 600;
+    border-bottom: 2px solid #e3f0fc;
+}
+.inbox-list tbody tr {
+    transition: background 0.2s;
+}
+.inbox-list tbody tr:hover {
+    background: #f0f8ff;
+}
+.inbox-list td {
+    border-bottom: 1px solid #f5f5f5;
+}
+.inbox-list .status-unread {
+    color: #d6336c;
+    font-weight: 600;
+    background: #fff0f6;
+    border-radius: 6px;
+    padding: 4px 10px;
+}
+.inbox-list .status-read {
+    color: #228be6;
+    font-weight: 600;
+    background: #e3f0fc;
+    border-radius: 6px;
+    padding: 4px 10px;
+}
+.inbox-list .alert-success {
+    margin-bottom: 20px;
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+}
