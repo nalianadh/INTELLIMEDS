@@ -49,6 +49,7 @@ class StockReceive extends Controller
                 'grn_received_by' => session('loggedUser')->u_username ?? 'system',
                 'item_id' => $item->item_id,
                 'grn_quantity_received' => $quantityReceived,
+                'grn_available_qty' => $quantityReceived, // nak makesure quantity available sama dengan received
                 'grn_date_received' => now(),
                 'grn_supplier' => $request->grn_supplier_company,
                 'grn_po_number' => $request->grn_purchase_order_id,
@@ -102,4 +103,34 @@ class StockReceive extends Controller
         });
         return view('main store.grn-list', compact('grnGroups'));
     }
+
+    //search function GRN list (Main Store)
+    public function searchGRN(Request $request)
+    {
+        $query = $request->input('query');
+
+        // If search input is empty, return all records grouped
+        if (empty($query)) {
+            $allNotes = \App\Models\ReceiveNote::orderByDesc('grn_date_received')->get();
+            $grnGroups = $allNotes->groupBy(function($note) {
+                return $note->grn_po_number . '|' . $note->grn_supplier . '|' . $note->grn_received_by;
+            });
+            return view('main store.grn-list', compact('grnGroups'));
+        }
+
+        // Search by PO number, supplier, or received_by
+        $filteredNotes = \App\Models\ReceiveNote::where('grn_po_number', 'LIKE', "%{$query}%")
+            ->orWhere('grn_supplier', 'LIKE', "%{$query}%")
+            ->orWhere('grn_received_by', 'LIKE', "%{$query}%")
+            ->orderByDesc('grn_date_received')
+            ->get();
+
+        // Group the results for display
+        $grnGroups = $filteredNotes->groupBy(function($note) {
+            return $note->grn_po_number . '|' . $note->grn_supplier . '|' . $note->grn_received_by;
+        });
+
+        return view('main store.grn-list', compact('grnGroups', 'query'));
+    }
+
 }

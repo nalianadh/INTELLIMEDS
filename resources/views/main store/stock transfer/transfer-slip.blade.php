@@ -14,7 +14,7 @@
             <tr><th style="text-align:left;">Transfer Date:</th><td>{{ $transfer->tr_date_requested ?? '-' }}</td></tr>
             <tr><th style="text-align:left;">From Unit:</th><td>{{ $transfer->tr_from_unit ?? '-' }}</td></tr>
             <tr><th style="text-align:left;">Destination:</th><td>{{ $transfer->tr_destination ?? '-' }}</td></tr>
-            <tr><th style="text-align:left;">Requested By:</th><td>{{ $transfer->tr_requested_by ?? '-' }}</td></tr>
+            <tr><th style="text-align:left;">Requested By:</th><td>{{ $transfer->user->u_name ?? '-' }}</td></tr>
         </table>
     </div>
 

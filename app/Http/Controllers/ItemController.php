@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Models\Item;
 use Illuminate\Support\Facades\DB;
 
-
 class ItemController extends Controller
 {
     // Show the item registration form
@@ -27,22 +26,33 @@ class ItemController extends Controller
             return redirect('/login');
         }
 
+        // Validate request
+        $request->validate([
+            'i_name' => 'required',
+            'i_description' => 'nullable',
+            'i_reorderLevel' => 'nullable|integer',
+            'i_stockID' => 'required',
+            'i_unit' => 'required',
+            'i_expirationDate' => 'nullable|date',
+            'i_batchNumber' => 'nullable|string',
+        ]);
+
+        // Create item with i_quantity_in_stock = 0
         Item::create([
             'i_name' => $request->i_name,
             'i_description' => $request->i_description,
             'i_reorderLevel' => $request->i_reorderLevel,
-            'i_quantity_in_stock' => $request->i_quantity_in_stock,
+            'i_quantity_in_stock' => 0, // always start at 0
             'i_expirationDate' => $request->i_expirationDate,
             'i_batchNumber' => $request->i_batchNumber,
             'i_stockID' => $request->i_stockID,
             'i_unit' => $request->i_unit,
         ]);
 
-        // After storing, redirect back to the form with updated items list
         return redirect()->route('items.create')->with('success', 'Item registered successfully!');
     }
 
-    // Display the item list with search and filter capabilities
+    // Display the item list with calculated quantities
     public function itemList(Request $request)
     {
         $query = Item::query();
@@ -51,58 +61,70 @@ class ItemController extends Controller
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
                 $q->where('i_name', 'like', "%$search%")
-                ->orWhere('i_stockID', 'like', "%$search%")
-                ->orWhere('i_batchNumber', 'like', "%$search%")
-                ->orWhere('i_description', 'like', "%$search%")
-                ->orWhere('i_expirationDate', 'like', "%$search%")
-                ->orWhere('i_quantity_in_stock', 'like', "%$search%")
-                ->orWhere('i_reorderLevel', 'like', "%$search%");
+                  ->orWhere('i_stockID', 'like', "%$search%")
+                  ->orWhere('i_batchNumber', 'like', "%$search%")
+                  ->orWhere('i_description', 'like', "%$search%")
+                  ->orWhere('i_expirationDate', 'like', "%$search%")
+                  ->orWhere('i_reorderLevel', 'like', "%$search%");
             });
         }
 
-        $items = $query->orderByDesc('created_at')->get();
+        $items = $query->orderByDesc('created_at')->paginate(10);
 
-        // Append total quantity for each item
-        foreach ($items as $item) {
+        // Calculate total quantity dynamically for each item
+        /*foreach ($items as $item) {
             $item->total_quantity = $this->calculateTotalQuantity($item->item_id);
-        }
+        }*/
 
         return view('main store.item-list', compact('items'));
     }
+
+    // View item details
     public function view($itemId)
     {
         $item = \App\Models\Item::findOrFail($itemId);
         $batches = \App\Models\ReceiveNote::where('item_id', $itemId)
-            ->select('grn_itemBatchNumber', 'grn_itemExpiredDate', 'grn_quantity_received')
+            ->select('grn_itemBatchNumber', 'grn_itemExpiredDate', 'grn_available_qty')
             ->get();
         return view('main store.item-view', compact('item', 'batches'));
     }
-    public function calculateTotalQuantity($itemId)
+
+    // Calculate total quantity of an item across tables
+
+
+
+
+
+    // Edit item
+    public function edit($id)
     {
-        // Get the base quantity from Item table
-        $itemQty = DB::table('items')
-            ->where('item_id', $itemId)
-            ->value('i_quantity_in_stock');
+        $item = Item::findOrFail($id);
+        return view('main store.item-edit', compact('item'));
+    }
 
-        // Get total quantity received from Receive Notes
-        $grnQty = DB::table('receive_notes')
-            ->where('item_id', $itemId)
-            ->sum('grn_quantity_received');
+    // Update item
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'i_stockID' => 'required',
+            'i_name' => 'required',
+            'i_description' => 'required',
+        ]);
 
-        // Get total quantity from Stock Transfers
-        $transferQty = DB::table('stock_transfers')
-            ->where('item_id', $itemId)
-            ->sum('tr_quantity');
+        $item = Item::findOrFail($id);
+        $item->update($request->only([
+            'i_name', 'i_description', 'i_reorderLevel', 'i_stockID', 'i_unit', 'i_expirationDate', 'i_batchNumber'
+        ]));
 
-        // Get total approved request quantity from Stock Requests
-        $approvedRequestsQty = DB::table('stock_requests')
-            ->where('item_id', $itemId)
-            ->where('rq_status', 'Approved')
-            ->sum('rq_qty_approved');
+        return redirect()->route('items.list')->with('success', 'Item updated successfully.');
+    }
 
-        // Formula: Item stock + Received + Transfers - Approved Requests
-        $totalQty = $itemQty + $grnQty + $transferQty - $approvedRequestsQty;
+    // Delete item
+    public function destroy($id)
+    {
+        $item = Item::findOrFail($id);
+        $item->delete();
 
-        return $totalQty;
+        return redirect()->route('items.list')->with('success', 'Item deleted successfully.');
     }
 }

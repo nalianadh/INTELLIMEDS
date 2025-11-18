@@ -261,4 +261,21 @@ class Inbox extends Controller
 
         return redirect()->route('mainstore.inbox')->with('error', 'Stock transfer rejected.');
     }
+
+    public function markAsRead($type, $id) 
+    {
+        $user = auth()->user(); // Assuming standard Laravel auth
+        
+        // Determine the correct model class
+        $modelClass = ($type === 'transfer') ? App\Models\StockTransfer::class : App\Models\StockRequest::class;
+
+        // Check if a read status already exists to prevent duplicates
+        $readStatus = ReadStatus::firstOrCreate([
+            'user_id' => $user->user_id, // Use your custom user ID field
+            'messageable_type' => $modelClass,
+            'messageable_id' => $id,
+        ]);
+
+        return redirect()->route('mainstore.inbox.index')->with('success', 'Message marked as read!');
+    }
 }

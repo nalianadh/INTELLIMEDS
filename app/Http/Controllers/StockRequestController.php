@@ -97,34 +97,59 @@ class StockRequestController extends Controller
         $user = session('loggedUser');
         $userId = $user->user_id;
 
-        DB::transaction(function () use ($request, $id, $userId) { // 👈 added $userId
+        $request->validate([
+            'rq_qty_approved' => 'required|integer|min:1',
+            'batches' => 'required|array',
+            'batches.*' => 'nullable|integer|min:0',
+        ]);
+
+        DB::transaction(function () use ($request, $id, $userId) {
             // Find the stock request
-            $stockRequest = StockRequest::findOrFail($id);
+            $stockRequest = StockRequest::where('request_id', $id)->firstOrFail();
 
             // Update request approval details
             $stockRequest->rq_qty_approved = $request->rq_qty_approved;
             $stockRequest->rq_remarks = $request->rq_remarks;
             $stockRequest->rq_status = 'Approved';
             $stockRequest->rq_date_approved = now();
-            $stockRequest->rq_approved_by = $userId; // 👈 works now
+            $stockRequest->rq_approved_by = $userId;
             $stockRequest->save();
 
-            // Deduct from item stock
-            $item = Item::findOrFail($stockRequest->item_id);
-            $item->i_quantity_in_stock -= $request->rq_qty_approved;
+            // Deduct from GRN batches
+            $totalApproved = 0;
+            foreach ($request->batches as $grnId => $qty) {
+                $qty = (int) $qty;
 
-            // Optional: Prevent negative stock
-            if ($item->i_quantity_in_stock < 0) {
-                $item->i_quantity_in_stock = 0;
+                if ($qty > 0) {
+                    $grn = \App\Models\ReceiveNote::findOrFail($grnId);
+
+                    if ($qty > $grn->grn_available_qty) {
+                        throw new \Exception("Quantity for batch {$grn->grn_itemBatchNumber} exceeds available stock.");
+                    }
+
+                    $grn->grn_available_qty -= $qty;
+                    $grn->save();
+
+                    $totalApproved += $qty;
+                }
             }
 
+            // Optional: Update total item stock if needed
+            $item = $stockRequest->item;
+            $item->i_quantity_in_stock = $item->receiveNotes()->sum('grn_available_qty');
             $item->save();
+
+            // Validate total approved matches sum of batch quantities
+            if ($totalApproved != $request->rq_qty_approved) {
+                throw new \Exception("Total approved quantity does not match sum of batch quantities.");
+            }
         });
 
         return redirect()
             ->route('stock.request.list')
-            ->with('success', 'Stock request approved and stock updated successfully.');
+            ->with('success', 'Stock request approved and batches updated successfully.');
     }
+
 
     public function view($id)
     {

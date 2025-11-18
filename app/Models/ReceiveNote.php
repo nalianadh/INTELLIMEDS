@@ -17,6 +17,7 @@ class ReceiveNote extends Model
         'item_id',
         'grn_quantity_received',
         'grn_date_received',
+        'grn_available_qty',
         'grn_supplier',
         'grn_po_number',
         'grn_remarks',

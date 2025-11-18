@@ -34,7 +34,7 @@
             <div id="items-container">
                 <!-- Item rows will be inserted here -->
             </div>
-            <button type="button" id="add-item-row" style="margin-bottom:16px;">+ Add Item</button>
+            <button type="submit" id="add-item-row" style="margin-bottom:16px;">+ Add Item</button>
             <button type="submit">SAVE</button>
         </form>
     </div>

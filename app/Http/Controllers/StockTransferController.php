@@ -27,6 +27,7 @@ class StockTransferController extends Controller
     }
 
     // Store stock transfer-in
+    // Store stock transfer-in (main store receiving from sub-department)
     public function storeTransferIn(Request $request)
     {
         $request->validate([
@@ -69,7 +70,7 @@ class StockTransferController extends Controller
                 ->orderBy('grn_id', 'asc')
                 ->first();
             if ($receiveNote) {
-                $receiveNote->grn_quantity_received = (int)$receiveNote->grn_quantity_received + (int)$quantity;
+                $receiveNote->grn_available_qty = (int)$receiveNote->grn_available_qty + (int)$quantity;
                 $receiveNote->save();
             }
 
@@ -83,6 +84,7 @@ class StockTransferController extends Controller
 
         return redirect()->route('stock.transfer.in')->with('success', 'Stock transfer(s) recorded and item quantities updated.');
     }
+
 
     // Store stock transfer-out (stub)
     public function storeTransferOut(Request $request)
@@ -127,7 +129,7 @@ class StockTransferController extends Controller
                 ->orderBy('grn_id', 'asc')
                 ->first();
             if ($receiveNote) {
-                $receiveNote->grn_quantity_received = max(0, (int)$receiveNote->grn_quantity_received - (int)$quantity);
+                $receiveNote->grn_available_qty = max(0, (int)$receiveNote->grn_available_qty - (int)$quantity);
                 $receiveNote->save();
             }
 
@@ -184,67 +186,95 @@ class StockTransferController extends Controller
     public function createSubDept()
     {
         if (!session()->has('loggedUser')) {
-            return redirect('/login'); // avoid named route error
+            return redirect('/login'); 
         }
 
         $loggedUser = session('loggedUser');
         $unitName   = $loggedUser->u_unit;
 
-        // ✅ Get latest in-hand stock directly
+        // Get your in-hand stock
         $inHandStock = $this->getInHandStock();
 
-        // Other sub departments (exclude current one)
+        // Get all items + batch + expiry
+        $items = \App\Models\Item::with(['receiveNotes' => function($q) {
+            $q->select('item_id', 'grn_itemBatchNumber', 'grn_itemExpiredDate')->distinct();
+        }])->orderByDesc('created_at')->get();
+
+        // Other sub departments
         $departments = DB::table('users')
             ->where('u_role', 'sub_department')
             ->where('u_unit', '!=', $unitName)
             ->select('user_id', 'u_name')
             ->get();
 
-        return view('sub_department.stock transfer.st-transfer', compact(
+        return view('sub_department.stock transfer.sd-transfer', compact(
             'inHandStock', 
             'unitName', 
-            'departments'
+            'departments',
+            'items'        //  ✅ ADD THIS
         ));
     }
+
 
     //method nak simpan stock transfer dari sub department
     public function storeSubDept(Request $request)
     {
-        if (!session()->has('loggedUser')) {
-            return redirect('/login');
-        }
+        $request->validate([
+                    'tr_from_unit' => 'required',
+                    'tr_destination' => 'required',
+                    'items' => 'required|array|min:1',
+                    'items.*.item_id' => 'required|exists:items,item_id',
+                    'items.*.batch_expiry' => 'required',
+                    'items.*.quantity' => 'required|integer|min:1',
+                ]);
 
-        $validated = $request->validate([
-            'transfer_to'   => 'required|string',
-            'tr_remarks'    => 'nullable|string|max:255',
-            'items'         => 'required|array|min:1',
-            'items.*.item_id'   => 'required|integer|exists:items,item_id',
-            'items.*.quantity'  => 'required|integer|min:1',
-        ]);
+                $userId = session('loggedUser') ? session('loggedUser')->user_id : 1;
+                $remarks = $request->input('tr_remarks');
+                $dateRequested = now()->toDateString();
+                $dateReceived = now()->toDateString(); // current date for received
+                foreach ($request->items as $itemRow) {
+                    $itemId = $itemRow['item_id'];
+                    $quantity = $itemRow['quantity'];
+                    // Parse batch and expiry
+                    list($batch, $expiry) = explode('|', $itemRow['batch_expiry']);
 
-        $loggedUser = session('loggedUser'); 
-        $unitName   = $loggedUser->u_unit;
+                    \App\Models\StockTransfer::create([
+                        'item_id' => $itemId,
+                        'tr_from_unit' => $request->tr_from_unit,
+                        'tr_destination' => $request->tr_destination,
+                        'tr_quantity' => abs($quantity), // store as positive for transfer-in
+                        'tr_transfer_status' => 'Received',
+                        'tr_requested_by' => $userId ?? 'system',
+                        'tr_received_by' => $userId,
+                        'tr_date_requested' => $dateRequested,
+                        'tr_date_received' => $dateReceived,
+                        'tr_remarks' => $remarks,
+                        'user_id' => $userId,
+                    ]);
 
-        foreach ($validated['items'] as $item) {
-            // Insert into stock_transfers
-            DB::table('stock_transfers')->insert([
-                'item_id'           => $item['item_id'],
-                'tr_quantity'       => $item['quantity'],
-                'tr_remarks'        => $validated['tr_remarks'] ?? null,
-                'tr_from_unit'      => $unitName,
-                'tr_requested_by'   => $loggedUser->user_id,
-                'tr_date_requested' => now()->toDateString(),
-                'tr_destination'    => $validated['transfer_to'],
-                'tr_transfer_status'=> 'Pending',
-                'user_id'           => $loggedUser->user_id,
-                'created_at'        => now(),
-                'updated_at'        => now(),
-            ]);
-        }
+                    // Update batch quantity in receive_notes (add)
+                    $receiveNote = \App\Models\ReceiveNote::where('item_id', $itemId)
+                        ->where('grn_itemBatchNumber', $batch)
+                        ->where('grn_itemExpiredDate', $expiry)
+                        ->orderBy('grn_id', 'asc')
+                        ->first();
+                    if ($receiveNote) {
+                        $receiveNote->grn_available_qty = (int)$receiveNote->grn_available_qty + (int)$quantity;
+                        $receiveNote->save();
+                    }
 
-        return redirect()->route('stock.transfer.subdept')
-            ->with('success', 'Stock transfer request created successfully.');
+                    // Update item quantity (add)
+                    $item = \App\Models\Item::find($itemId);
+                    if ($item) {
+                        $item->i_quantity_in_stock = (int)$item->i_quantity_in_stock + (int)$quantity;
+                        $item->save();
+                    }
+                }
+
+                return redirect()->route('stock.transfer.subdept')->with('success', 'Stock transfer(s) submitted.');
     }
+
+
 
 
     public function getInHandStock()
@@ -275,7 +305,7 @@ class StockTransferController extends Controller
         // 3) Transfers OUT from this unit (approved only)
         $transfersOut = DB::table('stock_transfers')
             ->select('item_id', DB::raw('SUM(tr_quantity) as qty'))
-            ->where('tr_transfer_status', 'Approved')
+            ->where('tr_transfer_status', 'Received')
             ->where('tr_from_unit', $unitName)
             ->groupBy('item_id');
 
@@ -315,6 +345,39 @@ class StockTransferController extends Controller
 
         return view('main store.stock transfer.transfer-slip', compact('transfer'));
     }
+
+    public function searchTransfers(Request $request)
+    {
+        $query = $request->input('query');
+
+        if (empty($query)) {
+            return redirect()->route('transfer.list');
+        }
+
+        // Search by multiple columns
+        $filteredTransfers = \App\Models\StockTransfer::where('tr_from_unit', 'LIKE', "%{$query}%")
+            ->orWhere('tr_destination', 'LIKE', "%{$query}%")
+            ->orWhere('tr_transfer_status', 'LIKE', "%{$query}%")
+            ->orWhere('tr_remarks', 'LIKE', "%{$query}%")
+            ->orWhere('tr_requested_by', 'LIKE', "%{$query}%")
+            ->orWhere('tr_received_by', 'LIKE', "%{$query}%")
+            ->orWhere('transfer_id', 'LIKE', "%{$query}%")
+            ->orderByDesc('tr_date_requested')
+            ->get();
+
+        // Add batch and expiry from related ReceiveNote (optional)
+        foreach ($filteredTransfers as $transfer) {
+            $note = \App\Models\ReceiveNote::where('item_id', $transfer->item_id)->first();
+            $transfer->batch = $note->grn_itemBatchNumber ?? '-';
+            $transfer->expiry = $note->grn_itemExpiredDate ?? '-';
+        }
+
+        return view('main store.stock transfer.transfer-list', [
+            'transfers' => $filteredTransfers,
+            'query' => $query
+        ]);
+    }
+
 
 
 

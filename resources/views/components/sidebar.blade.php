@@ -7,7 +7,8 @@
         class="{{ request()->routeIs('mainstore.inbox') ? 'active' : '' }}" 
         style="position: relative;">
         Inbox
-        @if(!empty($unreadInbox) && $unreadInbox > 0)
+        {{-- This variable must now be available globally via a View Composer --}}
+        @if(!empty($unreadInbox) && $unreadInbox > 0) 
             <span class="badge">{{ $unreadInbox }}</span>
         @endif
     </a>
@@ -54,7 +55,7 @@
     </div>
 
     <!--a href="#">Stock Adjustment</a-->
-    <a href="#">Reports</a>
+    <a href="{{ route('reports.index') }}">Reports</a>
 
     <div class="logout-btn">
         <a href="{{ route('logout') }}">Logout</a>

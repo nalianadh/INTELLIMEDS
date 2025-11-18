@@ -10,6 +10,7 @@ use App\Http\Controllers\StockRequestController;
 use App\Http\Controllers\SubdeptStockRequestController;
 use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\Inbox;
+use App\Http\Controllers\ReportController;
 
 
 // Redirect root URL to login
@@ -110,11 +111,20 @@ Route::get('/stock-receive/grn', [App\Http\Controllers\StockReceive::class, 'grn
 
 // GRN List View
 Route::get('/main-store/grn-list', [App\Http\Controllers\StockReceive::class, 'grnList'])->name('stock.receive.grnlist');
+Route::get('/main-store/grn/search', [App\Http\Controllers\StockReceive::class, 'searchGRN'])->name('grn.search');
 
 // Item List View
 Route::get('/main-store/item-list', [App\Http\Controllers\ItemController::class, 'itemList'])->name('items.list');
 // Item detail view
 Route::get('/main-store/item/{item}/view', [App\Http\Controllers\ItemController::class, 'view'])->name('items.view');
+Route::get('/main-store/item/search', [ItemController::class, 'searchItem'])->name('items.search');
+// Edit Item Page
+Route::get('/main-store/item/{item}/edit', [ItemController::class, 'edit'])->name('items.edit');
+// Update Item
+Route::put('/main-store/item/{item}/update', [ItemController::class, 'update'])->name('items.update');
+//delete item from the list
+Route::delete('/main-store/item/{item}/delete', [ItemController::class, 'destroy'])->name('items.delete');
+
 
 // Stock Transfer In (GET)
 Route::get('/main-store/stock-transfer-in', [App\Http\Controllers\StockTransferController::class, 'transferIn'])->name('stock.transfer.in');
@@ -126,6 +136,7 @@ Route::post('/main-store/stock-transfer-in', [App\Http\Controllers\StockTransfer
 Route::post('/main-store/stock-transfer-out', [App\Http\Controllers\StockTransferController::class, 'storeTransferOut'])->name('stock.transfer.out.store');
 // Stock Transfer List
 Route::get('/main-store/stock-transfer-list', [App\Http\Controllers\StockTransferController::class, 'transferList'])->name('stock.transfer.list');
+Route::get('/main-store/stock-transfer/search', [App\Http\Controllers\StockTransferController::class, 'searchTransfers'])->name('stock.transfer.search');
 Route::get('/transfer-slip/{id}', [StockTransferController::class, 'show'])->name('transferSlip.show');
 // Main Store Inbox
 // 📌 Show inbox list
@@ -133,15 +144,17 @@ Route::get('/main-store/inbox', [Inbox::class, 'indexMS'])->name('mainstore.inbo
 Route::get('/main-store/inbox/{id}', [Inbox::class, 'showMS'])->name('mainstore.inbox.show');
 Route::post('/main-store/inbox/{id}/accept', [Inbox::class, 'acceptMS'])->name('mainstore.inbox.accept');
 Route::post('/main-store/inbox/{id}/reject', [Inbox::class, 'rejectMS'])->name('mainstore.inbox.reject');
+Route::get('/main-store/inbox/mark-read/{type}/{id}', [Inbox::class, 'markAsRead'])->name('mainstore.inbox.mark-read');
 
 // Stock Request List
 Route::get('/main-store/stock-request-list', [StockRequestController::class, 'showRequestList'])
     ->name('stock.request.list');
 
 Route::get('/stock-request/pending', [StockRequestController::class, 'listPendingRequests'])->name('stock-request.pending');
-Route::get('/stock-request/{id}', [StockRequestController::class, 'show'])->name('stock-request.show');
-Route::put('/stock-request/{id}', [StockRequestController::class, 'update'])->name('stock-request.update');
 Route::get('/stock-request/{id}/view', [StockRequestController::class, 'view'])->name('stock-request.view');
+Route::get('/stock-request/{id}', [StockRequestController::class, 'show'])->name('stock-request.show');
+Route::put('/stock-request/{id}/update', [StockRequestController::class, 'update'])->name('stock-request.update');
+
 
 
 
@@ -170,4 +183,9 @@ Route::post('/sub-department/inbox/{id}/accept', [Inbox::class, 'accept'])->name
 Route::post('/sub-department/inbox/{id}/reject', [Inbox::class, 'reject'])->name('subdept.inbox.reject');
 
 
+//REPORT
+Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+Route::get('/reports/supply-transaction', [ReportController::class, 'supplyTransaction'])->name('reports.supply-transaction');
+Route::get('/reports/stock-request/list', [ReportController::class, 'SRlist'])->name('reports.stock-request.list');
+Route::get('/reports/stock-request/view/{id}', [ReportController::class, 'showStockRequestSlip'])->name('reports.stock-request.view');
 

@@ -8,37 +8,312 @@
         <h2>Item Register</h2>
         <p>Item Register / Registered Items</p>
     </div>
-    <!--form method="GET" action="" style="margin-bottom:24px;">
-        <div class="custom-search-bar">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search items by name, stock ID, batch..." class="custom-search-input">
-            <button type="submit" class="custom-search-btn">Search</button>
+
+    <!-- Search Bar -->
+    <form method="GET" action="{{ route('items.search') }}" class="search-bar-form" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search items by name, stock ID, or batch..." class="search-bar-input" style="padding: 6px; width: 250px;">
+        <button type="submit" class="search-bar-button">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </form>
+    <!--a href="{{ route('items.create') }}" class="btn btn-primary" style="padding: 6px 12px; text-decoration: none; border-radius: 6px;">+ Register New Item</a-->
+
+    <!-- Items Table Container -->
+    <div class="table-container">
+        <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+            <h3>Registered Items</h3>
+            <span class="item-count">{{ $items->total() }} items</span>
         </div>
-    </form-->
-    <div style="padding:24px 0;">
-        <table style="width:100%; background:#fff; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-collapse:collapse;">
+        
+        <table style="width: 100%; border-collapse: collapse;">
             <thead>
-                <tr style="background:#f6f9fc;">
-                    <th style="padding:10px; border-bottom:1.5px solid #eaeaea;">Name</th>
-                    <th style="padding:10px; border-bottom:1.5px solid #eaeaea;">Stock ID</th>
-                    <th style="padding:10px; border-bottom:1.5px solid #eaeaea;">Qty</th>
-                    <th style="padding:10px; border-bottom:1.5px solid #eaeaea;">Action</th>
+                <tr style="background-color: #f2f2f2;">
+                    <th>Item Name</th>
+                    <th>Stock ID</th>
+                    <th>Total Quantity</th>
+                    <th>Unit</th>
+                    <th style="text-align: center;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($items as $item)
                     <tr>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">{{ $item->i_name }}</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0; text-align:center;">{{ $item->i_stockID }}</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0; text-align:center;">{{ $item->i_quantity_in_stock }}</td>
-                        <td style="padding:8px; border-bottom:1px solid #f0f0f0; text-align:center;">
-                            <a href="{{ route('items.view', ['item' => $item->item_id]) }}" style="padding:6px 18px; border-radius:6px; background:#20425c; color:#fff; border:none; cursor:pointer; font-size:0.95em; text-decoration:none; display:inline-block;">View</a>
+                        <td>
+                            <div class="item-name-cell" style="display: flex; align-items: center; font-weight: 500; color: #212529;">
+                                <i class="fas fa-box" style="color: #6c757d; margin-right: 10px;"></i>
+                                <span>{{ $item->i_name }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="stock-id-badge" style="display: inline-block; padding: 4px 12px; background: #e7f3ff; color: #0066cc; border-radius: 20px; font-size: 12px; font-weight: 500;">{{ $item->i_stockID }}</span>
+                        </td>
+                        <td>
+                            <span class="quantity-cell" style="display: inline-block; padding: 4px 12px; background: #f8f9fa; color: #495057; border-radius: 20px; font-weight: 600;">{{ $item->quantity_in_stock }}</span>
+                        </td>
+                        <td>
+                            <span class="unit-text" style="color: #6c757d;">{{ $item->i_unit ?? 'N/A' }}</span>
+                        </td>
+                        <td style="text-align: center;">
+                            <div class="action-buttons">
+                                <a href="{{ route('items.view', ['item' => $item->item_id]) }}" class="btn-action btn-view">
+                                    <i class="fas fa-eye"></i> 
+                                </a>
+                                <a href="{{ route('items.edit', ['item' => $item->item_id]) }}" class="btn-action btn-edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="#" 
+                                class="btn-action btn-delete"
+                                onclick="event.preventDefault();
+                                            if(confirm('Are you sure you want to delete this item?')) {
+                                                document.getElementById('delete-item-{{ $item->item_id }}').submit();
+                                            }">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+
+                                <form id="delete-item-{{ $item->item_id }}"
+                                    action="{{ route('items.delete', ['item' => $item->item_id]) }}"
+                                    method="POST"
+                                    style="display:none;">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" style="padding:12px; text-align:center; color:#aaa;">No items registered yet.</td></tr>
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px 0; color: #6c757d;">
+                            <i class="fas fa-inbox" style="font-size: 48px; display: block; margin-bottom: 16px;"></i>
+                            No items registered yet.
+                        </td>
+                    </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
+
+    <!-- Pagination -->
+    @if($items->hasPages())
+        <div style="margin-top: 20px;">
+            {{ $items->links() }}
+        </div>
+    @endif
 </div>
+
+<style>
+    /* Table Container */
+    .table-container {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-bottom: 1px solid #e9ecef;
+        background: #f8f9fa;
+    }
+
+    .table-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #0f3e59;
+    }
+
+    .item-count {
+        font-size: 13px;
+        color: #6c757d;
+        font-weight: 500;
+        background: #ffffff;
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1px solid #e9ecef;
+    }
+
+    /* Override table styles to match main layout */
+    .table-container table {
+        margin-top: 0;
+        border-radius: 0;
+        box-shadow: none;
+        border: none;
+    }
+
+    .table-container table th {
+        background-color: #f8f9fa;
+        padding: 12px 16px;
+        font-weight: 600;
+        font-size: 13px;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table-container table td {
+        padding: 12px 16px;
+        font-size: 14px;
+        color: #212529;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .table-container table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table-container table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    /* Item Name Cell */
+    .item-name-cell {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        color: #212529;
+    }
+
+    /* Stock ID Badge */
+    .stock-id-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #e7f3ff;
+        color: #0066cc;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        font-family: 'Courier New', monospace;
+    }
+
+    /* Quantity Cell */
+    .quantity-cell {
+        display: inline-block;
+        padding: 4px 12px;
+        background: #f8f9fa;
+        color: #495057;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 13px;
+    }
+
+    /* Unit Text */
+    .unit-text {
+        color: #6c757d;
+        font-size: 14px;
+    }
+
+    /* Action Buttons Container */
+    .action-buttons {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Base Action Button Style */
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        color: #ffffff;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+        min-width: 80px;
+    }
+
+    .btn-action i {
+        font-size: 14px;
+    }
+
+    /* View Button */
+    .btn-view {
+        background: #0f3e59;
+        min-width: 36px;
+    }
+
+    .btn-view:hover {
+        background: #1a5270;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(15, 62, 89, 0.2);
+    }
+
+    /* Edit Button - Icon Only */
+    .btn-edit {
+        background: #28a745;
+        min-width: 40px;
+        padding: 8px 12px;
+    }
+
+    .btn-edit:hover {
+        background: #218838;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(40, 167, 69, 0.2);
+    }
+
+    /* Delete Button - Icon Only */
+    .btn-delete {
+        background: #ea0101ff;
+        min-width: 40px;
+        padding: 8px 12px;
+    }
+
+    .btn-delete:hover {
+        background: #ea0101ff;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(15, 62, 89, 0.2);
+    }
+
+    .btn-action:active {
+        transform: translateY(0);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 0 !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .table-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .table-container table th,
+        .table-container table td {
+            padding: 10px 12px;
+            font-size: 13px;
+        }
+
+        .action-buttons {
+            gap: 6px;
+        }
+
+        .btn-action {
+            padding: 6px 12px;
+            font-size: 13px;
+            min-width: 70px;
+        }
+
+        .btn-edit,
+        .btn-delete {
+            min-width: 36px;
+            padding: 6px 10px;
+        }
+    }
+</style>
 @endsection

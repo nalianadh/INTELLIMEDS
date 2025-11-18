@@ -147,5 +147,6 @@
             e.target.closest('tr').remove();
         }
     });
+
 </script>
 @endsection
