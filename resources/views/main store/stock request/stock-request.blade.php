@@ -74,9 +74,6 @@
                             <div style="padding: 40px 20px;">
                                 <i class="fas fa-clipboard-list" style="font-size: 48px; color: #adb5bd; display: block; margin-bottom: 16px;"></i>
                                 <p style="margin: 0 0 16px 0; color: #6c757d; font-size: 14px;">No pending stock requests found</p>
-                                <a href="{{ route('stock-request.create') }}" style="display: inline-flex; align-items: center; gap: 6px; padding: 10px 20px; background: #0f3e59; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 500; transition: all 0.2s;">
-                                    <i class="fas fa-plus"></i> Create New Request
-                                </a>
                             </div>
                         </td>
                     </tr>

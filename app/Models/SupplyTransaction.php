@@ -7,7 +7,7 @@ use App\Models\Item;
 
 class SupplyTransaction extends Model
 {
-    protected $table = 'supply_transaction_2';
+    protected $table = 'supply_transaction';
     public $timestamps = false;
 
     protected $fillable = [

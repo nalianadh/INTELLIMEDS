@@ -90,12 +90,16 @@
                 @endforelse
             </tbody>
         </table>
+        <a href="{{ route('items.sync') }}" class="btn btn-secondary mb-3">
+            Sync Items from Dataset
+        </a>
+
     </div>
 
     <!-- Pagination -->
     @if($items->hasPages())
-        <div style="margin-top: 20px;">
-            {{ $items->links() }}
+        <div class="pagination-container">
+            {{ $items->links('pagination::bootstrap-4') }}
         </div>
     @endif
 </div>
@@ -315,5 +319,112 @@
             padding: 6px 10px;
         }
     }
+   /* Pagination Wrapper */
+.pagination-container {
+    margin-top: 24px;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Remove defaults */
+.pagination {
+    display: flex;
+    gap: 8px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+/* Page Item */
+.pagination li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Page Links */
+.pagination li a,
+.pagination li span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 40px;
+    height: 40px;
+
+    padding: 8px 12px;
+    border-radius: 10px;
+
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+
+    color: #0f3e59;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+/* Hover */
+.pagination li a:hover {
+    background: #f0f4f7;
+    border-color: #0f3e59;
+    color: #0f3e59;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(15, 62, 89, 0.15);
+}
+
+/* Active */
+.pagination li.active span {
+    background: #0f3e59;
+    color: #ffffff;
+    border-color: #0f3e59;
+    box-shadow: 0 3px 8px rgba(15, 62, 89, 0.25);
+    cursor: default;
+}
+
+/* Disabled */
+.pagination li.disabled span,
+.pagination li.disabled a {
+    background: #f8f9fa;
+    color: #adb5bd;
+    border-color: #e0e0e0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Previous & Next */
+.pagination li:first-child a,
+.pagination li:last-child a,
+.pagination li:first-child span,
+.pagination li:last-child span {
+    padding: 8px 18px;
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pagination li a,
+    .pagination li span {
+        min-width: 34px;
+        height: 34px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination li a,
+    .pagination li span {
+        min-width: 30px;
+        height: 30px;
+        padding: 6px;
+        font-size: 12px;
+    }
+}
 </style>
 @endsection

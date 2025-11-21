@@ -89,11 +89,6 @@ class ItemController extends Controller
         return view('main store.item-view', compact('item', 'batches'));
     }
 
-    // Calculate total quantity of an item across tables
-
-
-
-
 
     // Edit item
     public function edit($id)
@@ -127,4 +122,44 @@ class ItemController extends Controller
 
         return redirect()->route('items.list')->with('success', 'Item deleted successfully.');
     }
+
+    //search item
+    public function searchItem(Request $request)
+    {
+        $search = $request->input('search');
+
+        $items = Item::where('i_name', 'like', "%$search%")
+            ->orWhere('i_stockID', 'like', "%$search%")
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return view('main store.item-list', compact('items'));
+
+    }
+
+    //nak sync data dengan supply_transaction table untuk display dekat list
+    public function syncImportedItems()
+    {
+        $uniqueItems = DB::table('supply_transaction')
+            ->select('Stock_ID', 'Stock', 'Unit', 'Brand')
+            ->groupBy('Stock_ID', 'Stock', 'Unit', 'Brand')
+            ->get();
+
+        foreach ($uniqueItems as $item) {
+            \App\Models\Item::updateOrCreate(
+                [
+                    'i_stockID' => $item->Stock_ID
+                ],
+                [
+                    'i_name' => $item->Stock,
+                    'i_unit' => $item->Unit,
+                    'i_description' => $item->Brand,
+                ]
+            );
+        }
+
+
+        return redirect()->back()->with('success', 'Items synced successfully!');
+    }
+
 }

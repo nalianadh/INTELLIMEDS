@@ -107,14 +107,16 @@ Route::get('/stock-receive', [App\Http\Controllers\StockReceive::class, 'create'
 Route::post('/stock-receive', [App\Http\Controllers\StockReceive::class, 'store'])->name('stock.receive.store');
 
 // GRN Invoice View
-Route::get('/stock-receive/grn', [App\Http\Controllers\StockReceive::class, 'grn'])->name('stock.receive.grn');
+Route::get('/stock-receive/grn', [StockReceive::class, 'grn'])->name('stock.receive.grn');
 
 // GRN List View
-Route::get('/main-store/grn-list', [App\Http\Controllers\StockReceive::class, 'grnList'])->name('stock.receive.grnlist');
-Route::get('/main-store/grn/search', [App\Http\Controllers\StockReceive::class, 'searchGRN'])->name('grn.search');
+Route::get('/main-store/grn-list', [StockReceive::class, 'grnList'])->name('stock.receive.grnlist');
+Route::get('/main-store/grn/search', [StockReceive::class, 'searchGRN'])->name('grn.search');
 
 // Item List View
-Route::get('/main-store/item-list', [App\Http\Controllers\ItemController::class, 'itemList'])->name('items.list');
+Route::get('/main-store/item-list', [ItemController::class, 'itemList'])->name('items.list');
+Route::get('/sync-items', [ItemController::class, 'syncImportedItems'])->name('items.sync'); //nak sync imported data dengan existing data items
+
 // Item detail view
 Route::get('/main-store/item/{item}/view', [App\Http\Controllers\ItemController::class, 'view'])->name('items.view');
 Route::get('/main-store/item/search', [ItemController::class, 'searchItem'])->name('items.search');
