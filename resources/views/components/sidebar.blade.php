@@ -23,6 +23,8 @@
         </div>
     </div>
 
+        <a href="{{ route('viewItemActivities') }}">Stock Activities</a>
+
     <div class="dropdown">
         <a href="#" class="dropdown-toggle" onclick="event.preventDefault();this.nextElementSibling.classList.toggle('show');">
             Stock Receive &#9662;
