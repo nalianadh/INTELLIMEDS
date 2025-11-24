@@ -17,6 +17,7 @@ class Item extends Model
         'i_minLevel',
         'i_maxLevel',
         'i_unit',
+        
     ];
 
     // Relationships

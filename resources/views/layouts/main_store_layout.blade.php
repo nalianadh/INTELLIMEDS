@@ -410,6 +410,28 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* ===== PRINT STYLES ===== */
+        @media print {
+            .sidebar,
+            .header .action-bar, /* hides top buttons */
+            .no-print {
+                display: none !important;
+            }
+
+            .main,
+            .content {
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .transfer-slip {
+                box-shadow: none !important;
+                border: none !important;
+            }
+        }
+
     </style>
 </head>
 <body>

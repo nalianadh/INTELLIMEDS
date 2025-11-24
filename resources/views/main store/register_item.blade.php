@@ -38,6 +38,11 @@
                     <label for="i_unit">Unit</label>
                     <input type="text" name="i_unit" id="i_unit" placeholder="e.g., box, bottle, pack" required>
                 </div>
+
+                <div class="form-group">
+                    <label for="i_minLevel">Minimum Quantity</label>
+                    <input type="text" name="i_minLevel" id="i_minLevel" placeholder="e.g., 12" required>
+                </div>
             </div>
 
             <button type="submit">

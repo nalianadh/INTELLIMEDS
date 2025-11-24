@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\StockTransfer;
 use App\Models\StockRequest;
 use App\Models\Item;
-use App\Models\ReadStatus; // <-- NEW: Import the model for persistent read status
+use App\Models\ReadStatus; 
 
 class Inbox extends Controller
 {

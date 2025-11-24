@@ -62,8 +62,8 @@
                             <label class="modern-label">Item</label>
                             <select name="items[0][item_id]" class="item-select modern-select" data-index="0" required>
                                 <option value="">Select Item</option>
-                                @foreach($items as $item)
-                                    <option value="{{ $item->item_id }}">{{ $item->i_stockID }} ({{ $item->i_name }})</option>
+                                @foreach($inHandStock as $item)
+                                    <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
                                 @endforeach
                             </select>
                         </div>

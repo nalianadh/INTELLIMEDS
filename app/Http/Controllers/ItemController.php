@@ -33,8 +33,7 @@ class ItemController extends Controller
             'i_reorderLevel' => 'nullable|integer',
             'i_stockID' => 'required',
             'i_unit' => 'required',
-            'i_expirationDate' => 'nullable|date',
-            'i_batchNumber' => 'nullable|string',
+            'i_minLevel' => 'required',
         ]);
 
         // Create item with i_quantity_in_stock = 0
@@ -43,10 +42,9 @@ class ItemController extends Controller
             'i_description' => $request->i_description,
             'i_reorderLevel' => $request->i_reorderLevel,
             'i_quantity_in_stock' => 0, // always start at 0
-            'i_expirationDate' => $request->i_expirationDate,
-            'i_batchNumber' => $request->i_batchNumber,
             'i_stockID' => $request->i_stockID,
             'i_unit' => $request->i_unit,
+            'i_minLevel' => $request->i_minLevel,
         ]);
 
         return redirect()->route('items.create')->with('success', 'Item registered successfully!');
@@ -104,11 +102,12 @@ class ItemController extends Controller
             'i_stockID' => 'required',
             'i_name' => 'required',
             'i_description' => 'required',
+            'i_minLevel' => 'nullable|integer',
         ]);
 
         $item = Item::findOrFail($id);
         $item->update($request->only([
-            'i_name', 'i_description', 'i_reorderLevel', 'i_stockID', 'i_unit', 'i_expirationDate', 'i_batchNumber'
+            'i_name', 'i_description', 'i_reorderLevel', 'i_stockID', 'i_unit', 'i_expirationDate', 'i_batchNumber', 'i_minLevel'
         ]));
 
         return redirect()->route('items.list')->with('success', 'Item updated successfully.');

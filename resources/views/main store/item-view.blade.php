@@ -40,6 +40,12 @@
                     </label>
                     <div class="info-value">{{ $item->i_description }}</div>
                 </div>
+                <div class="info-item full-width">
+                    <label class="info-label">
+                        <i class="fas fa-align-left"></i> Minimum Quantity
+                    </label>
+                    <div class="info-value">{{ $item->i_minLevel }}</div>
+                </div>
             </div>
         </div>
 
@@ -90,12 +96,6 @@
             </div>
         </div>
 
-        <!-- Action Footer -->
-        <div class="action-footer">
-            <a href="{{ route('items.list') }}" class="btn-back-bottom">
-                <i class="fas fa-arrow-left"></i> Back to Item List
-            </a>
-        </div>
     </div>
 </div>
 

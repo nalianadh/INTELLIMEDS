@@ -330,6 +330,7 @@ class StockTransferController extends Controller
                     AS in_hand_stock
                 ')
             )
+            ->having('in_hand_stock', '>', 0)
             ->get();
     }
 

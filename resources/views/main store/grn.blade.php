@@ -8,6 +8,12 @@
         <h2>Stock Receive</h2>
         <p>Home / Stock Receive - GRN</p>
     </div>
+        <!-- Buttons -->
+        <div class="action-bar">
+            <button onclick="window.print();" class="btn btn-primary">
+                <span>🖨</span> Print Slip
+            </button>
+        </div>
     <div class="grn-info" style="margin-bottom:24px;">
         <table style="width:auto;">
             <tr><th style="text-align:left;">GRN Date:</th><td>{{ $receiveNotes->first()->grn_date_received ?? '-' }}</td></tr>
@@ -41,8 +47,41 @@
         <strong>Remarks:</strong><br>
         {{ $receiveNotes->first()->grn_remarks ?? 'None' }}
     </div>
+
     <div style="margin-top:32px;">
         <a href="{{ route('stock.receive.grnlist') }}" style="display:inline-block;padding:8px 20px;background:#20425c;color:#fff;text-decoration:none;border-radius:4px;">&larr; Back to GRN List</a>
     </div>
 </div>
+<style>
+    .action-bar {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    }
+</style>
 @endsection

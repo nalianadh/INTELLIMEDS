@@ -14,16 +14,10 @@
     <div class="card p-4">
 
             <!-- Buttons -->
-        <div>
-            <!-- Export to PDF -->
-            <a href="#" 
-               style="display:inline-block; background:#dc3545; color:#fff; 
-                      padding:8px 18px; border-radius:6px; text-decoration:none; 
-                      transition: background 0.2s;"
-               onmouseover="this.style.background='#c82333'"
-               onmouseout="this.style.background='#dc3545'">
-                <i class="fas fa-file-pdf"></i> Export PDF
-            </a>
+        <div class="action-bar">
+            <button onclick="window.print();" class="btn btn-primary">
+                <span>🖨</span> Print Slip
+            </button>
         </div>
 
         <!-- Basic Request Information -->
@@ -93,4 +87,35 @@
 
     </div>
 </div>
+<style>
+    .action-bar {
+    display: flex;
+    gap: 12px;
+    flex-shrink: 0;
+    }
+    .btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+    }
+</style>
 @endsection

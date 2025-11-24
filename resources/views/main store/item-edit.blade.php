@@ -43,6 +43,22 @@
                     >
                 </div>
 
+                <!-- Min qty -->
+                <div class="form-group">
+                    <label for="i_minLevel" class="form-label">
+                        <i class="fas fa-barcode"></i> Minimum Level <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="i_minLevel"
+                        name="i_minLevel" 
+                        value="{{ old('i_minLevel', $item->i_minLevel) }}"
+                        required
+                        class="form-control"
+                        placeholder="Enter stock ID"
+                    >
+                </div>
+
                 <!-- Item Name -->
                 <div class="form-group">
                     <label for="i_name" class="form-label">
