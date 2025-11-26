@@ -10,114 +10,299 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f6f9fc;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            color: #2c3e50;
         }
 
         .sidebar {
             position: fixed;
-            width: 200px;
+            width: 250px;
             height: 100vh;
-            background-color: #0f3e59;
+            background: linear-gradient(180deg, #0a2e43 0%, #0f3e59 100%);
             color: white;
-            padding: 20px 0;
+            padding: 0;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
 
         .sidebar h2 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 16px;
+            padding: 30px 20px;
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            letter-spacing: 1px;
         }
 
         .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: white;
+            display: flex;
+            align-items: center;
+            padding: 16px 25px;
+            color: rgba(255,255,255,0.8);
             text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+            font-size: 15px;
         }
 
         .sidebar a.active,
         .sidebar a:hover {
-            background-color: #14506e;
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: #4fc3f7;
+            padding-left: 30px;
         }
 
         .main {
-            margin-left: 200px;
-            padding: 30px;
+            margin-left: 250px;
+            padding: 40px;
+            min-height: 100vh;
         }
 
         .header {
-            margin-bottom: 20px;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e0e6ed;
+        }
+
+        .header h2 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            color: #0f3e59;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0;
+            color: #7f8c9a;
+            font-size: 14px;
         }
 
         .cards {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
         }
 
         .card {
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 10px;
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
             text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4fc3f7 0%, #2196f3 100%);
+        }
+
+        .card:nth-child(2)::before {
+            background: linear-gradient(90deg, #66bb6a 0%, #43a047 100%);
+        }
+
+        .card:nth-child(3)::before {
+            background: linear-gradient(90deg, #ffa726 0%, #fb8c00 100%);
+        }
+
+        .card:nth-child(4)::before {
+            background: linear-gradient(90deg, #ef5350 0%, #e53935 100%);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .card h4 {
+            margin: 0 0 15px 0;
+            font-size: 13px;
+            color: #7f8c9a;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .card h2 {
+            margin: 0 0 10px 0;
+            font-size: 36px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .card p {
+            margin: 0;
+            color: #95a5a6;
+            font-size: 14px;
         }
 
         .summary-alerts {
             display: flex;
-            gap: 20px;
+            gap: 25px;
+            flex-wrap: wrap;
         }
 
         .summary,
         .alerts {
-            background-color: white;
+            background: white;
             flex: 1;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 300px;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .summary h3,
         .alerts h3 {
-            margin-top: 0;
+            margin: 0 0 25px 0;
+            font-size: 20px;
+            color: #0f3e59;
+            font-weight: 600;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0e6ed;
         }
 
         .chart-placeholder {
             height: 200px;
-            background: #f0f0f0;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c9a;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             margin-top: 10px;
+            font-size: 14px;
         }
 
         table th, table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e6ed;
         }
 
         table th {
-            background-color: #eaeaea;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            font-weight: 600;
+            color: #0f3e59;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        table tbody tr:last-child td {
+            border-bottom: none;
         }
 
         .logout-btn {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
+            bottom: 30px;
+            left: 25px;
+            right: 25px;
             text-align: center;
         }
 
         .logout-btn a {
-            color: #fff;
-            text-decoration: underline;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
             font-size: 14px;
+            padding: 12px;
+            display: block;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logout-btn a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-expired {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        .table-scroll {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e6ed;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card-link .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            cursor: pointer;
+        }
+
+        
+
+        @media (max-width: 1200px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            
+            .main {
+                margin-left: 200px;
+                padding: 20px;
+            }
+            
+            .cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-alerts {
+                flex-direction: column;
+            }
+
         }
     </style>
 </head>
@@ -139,55 +324,115 @@
         <h2>Welcome to INTELLIMEDS</h2>
         <p>Home / Dashboard</p>
     </div>
+
     <div class="cards">
-        <div class="card">
-            <h4>STOCK RECEIVED</h4>
-            <h2>{{ $stockReceived ?? '--' }}</h2>
-            <p>Total Received</p>
-        </div>
-        <div class="card">
-            <h4>STOCK TRANSFERRED</h4>
-            <h2>{{ $stockTransferred ?? '--' }}</h2>
-            <p>Total Transferred</p>
-        </div>
-        <div class="card">
-            <h4>LOW STOCK ITEMS</h4>
-            <h2 style="color: orange;">{{ $lowStockCount ?? '--' }}</h2>
-            <p>Items</p>
-        </div>
-        <div class="card">
-            <h4>EXPIRED ITEMS</h4>
-            <h2 style="color: red;">{{ $expiredCount ?? '--' }}</h2>
-            <p>Total Expired</p>
-        </div>
+
+        <!-- TOTAL ITEMS -->
+        <a href="{{ route('items.list') }}" class="card-link">
+            <div class="card">
+                <h4>TOTAL STOCK</h4>
+                <h2>{{ $stockReceived ?? '--' }}</h2>
+                <p>Total Received</p>
+            </div>
+        </a>
+
+        <!-- STOCK TRANSFERRED -->
+        <a href="{{ route('stock.transfer.list') }}" class="card-link">
+            <div class="card">
+                <h4>STOCK TRANSFERRED</h4>
+                <h2>{{ $stockTransferred ?? '--' }}</h2>
+                <p>Total Transferred</p>
+            </div>
+        </a>
+
+        <!-- LOW STOCK ITEMS -->
+        <a href="#" class="card-link">
+            <div class="card">
+                <h4>LOW STOCK ITEMS</h4>
+                <h2 style="color: #fb8c00;">{{ $lowStockItems ?? '--' }}</h2>
+                <p>Items</p>
+            </div>
+        </a>
+
+        <!-- EXPIRED ITEMS -->
+        <a href="#" class="card-link">
+            <div class="card">
+                <h4>EXPIRED ITEMS</h4>
+                <h2 style="color: #e53935;">{{ $expiredCount ?? '--' }}</h2>
+                <p>Total Expired</p>
+            </div>
+        </a>
+
     </div>
 
-    <div class="summary-alerts" style="margin-top:40px;">
-        <div class="alerts" style="flex:1;">
-            <h3>List of Expired Items</h3>
+    <div class="alerts" style="flex:1; margin-top:40px;">
+    <h3>Low Stock Items</h3>
+
+        <div class="table-scroll">
             <table>
                 <thead>
                     <tr>
                         <th>Item Name</th>
-                        <th>Stock</th>
-                        <th>Expiry Date</th>
+                        <th>Stock ID</th>
+                        <th>In Stock</th>
+                        <th>Min Level</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($expiredItems ?? [] as $item)
-                        <tr>
-                            <td>{{ $item->name }}</td>
-                            <td style="color:red;">{{ $item->stock }}</td>
-                            <td>{{ $item->expiry_date }}</td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="3">No expired items.</td>
-                        </tr>
-                    @endforelse
+                @forelse($lowStockList ?? [] as $item)
+                    <tr>
+                        <td>{{ $item->i_name }}</td>
+                        <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
+                        <td style="color:#e53935; font-weight:600;">
+                            {{ $item->i_quantity_in_stock }}
+                        </td>
+                        <td>{{ $item->i_minLevel }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="text-align:center; color:#7f8c9a; padding:30px;">
+                            No low stock items.
+                        </td>
+                    </tr>
+                @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+<div class="summary-alerts" style="margin-top:40px;">
+    <div class="alerts" style="flex:1;">
+        <h3>List of Expired Items</h3>
+
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Stock ID</th>
+                        <th>Batch Number</th>
+                        <th>Expiry Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @forelse($expiredItems ?? [] as $item)
+                    <tr>
+                        <td>{{ $item->i_name }}</td>
+                        <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
+                        <td>{{ $item->grn_itemBatchNumber }}</td>
+                        <td>{{ $item->grn_itemExpiredDate }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #7f8c9a; padding: 30px;">No expired items.</td>
+                    </tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
 </div>
 @endsection

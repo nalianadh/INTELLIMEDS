@@ -12,6 +12,7 @@ use App\Http\Controllers\StockTransferController;
 use App\Http\Controllers\Inbox;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\DemandController;
+use App\Http\Controllers\UserController;
 
 
 // Redirect root URL to login
@@ -45,8 +46,16 @@ Route::post('/login', function (Request $request) {
     }
 })->name('customLogin');
 
+// 🟢 Main Store Dashboard
+Route::get('/main-store/dashboard', [UserController::class, 'mainStoreDashboard'])
+    ->name('mainstore.dashboard');
+
+// 🔵 Sub Department Dashboard
+Route::get('/sub-department/dashboard', [UserController::class, 'subDeptDashboard'])
+    ->name('subdept.dashboard');
+
 // 🟢 Main Store Dashboard (named route)
-Route::get('/main-store/dashboard', function () {
+/*Route::get('/main-store/dashboard', function () {
     if (!session()->has('loggedUser')) {
         return redirect('/login');
     }
@@ -73,7 +82,7 @@ Route::get('/sub-department/dashboard', function () {
     }
 
     return view('sub_department.dashboard', compact('user'));
-})->name('subdept.dashboard');
+})->name('subdept.dashboard');*/
 
 // 🔴 Logout Route
 Route::get('/logout', function () {

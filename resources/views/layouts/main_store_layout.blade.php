@@ -27,6 +27,8 @@
             padding: 0;
             box-shadow: 2px 0 8px rgba(0,0,0,0.1);
             z-index: 100;
+            display: flex;              /* ADD THIS */
+            flex-direction: column;
         }
 
         .sidebar h2 {
@@ -69,13 +71,11 @@
         }
 
         .logout-btn {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            margin-top: auto;
             padding: 20px 24px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
+
 
         .logout-btn a {
             display: flex;

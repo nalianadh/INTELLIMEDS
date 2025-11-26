@@ -139,13 +139,16 @@ class ItemController extends Controller
     //nak sync data dengan supply_transaction table untuk display dekat list
     public function syncImportedItems()
     {
+        // 1. Get unique items from supply_transaction
         $uniqueItems = DB::table('supply_transaction')
             ->select('Stock_ID', 'Stock', 'Unit', 'Brand')
             ->groupBy('Stock_ID', 'Stock', 'Unit', 'Brand')
             ->get();
 
         foreach ($uniqueItems as $item) {
-            \App\Models\Item::updateOrCreate(
+
+            // 2. Create or update item table first
+            $createdItem = \App\Models\Item::updateOrCreate(
                 [
                     'i_stockID' => $item->Stock_ID
                 ],
@@ -155,10 +158,20 @@ class ItemController extends Controller
                     'i_description' => $item->Brand,
                 ]
             );
-        }
 
+            // 3. After item exists, update quantity_in_stock using receive_notes sum
+            $currentQty = $createdItem->receiveNotes()->sum('grn_available_qty');
+
+            // 4. Save to the column
+            $createdItem->update([
+                'i_quantity_in_stock' => $currentQty,
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Items synced successfully!');
     }
+
+
+
 
 }
