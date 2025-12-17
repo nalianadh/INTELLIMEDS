@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -312,6 +313,30 @@
 
     @yield('content')
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const expiredCount = {{ $expiredCount ?? 0 }};
+            const lowStockCount = {{ $lowStockItems ?? 0 }};
+
+            if (expiredCount > 0 || lowStockCount > 0) {
+                let message = 'Attention Required:\n';
+                if (expiredCount > 0) {
+                    message += `• ${expiredCount} expired item(s)\n`;
+                }
+                if (lowStockCount > 0) {
+                    message += `• ${lowStockCount} low stock item(s)`;
+                }
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Inventory Alert',
+                    text: message,
+                    confirmButtonColor: '#0f3e59',
+                    confirmButtonText: 'OK'
+                });
+            }
+        });
+    </script>
 </body>
 </html>
 @extends('layouts.main_store_layout')

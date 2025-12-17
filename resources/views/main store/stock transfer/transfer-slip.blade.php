@@ -250,7 +250,7 @@
                 <tr>
                     <td>1</td>
                     <td>{{ $transfer->item->i_name ?? 'N/A' }}</td>
-                    <td>{{ abs($transfer->tr_quantity) }}</td>
+                    <td>{{ $transfer->tr_in_quantity > 0 ? $transfer->tr_in_quantity : abs($transfer->tr_out_quantity) }}</td>
                 </tr>
             </tbody>
         </table>

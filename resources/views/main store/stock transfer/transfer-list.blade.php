@@ -82,15 +82,20 @@
                             </div>
                         </td>
                         <td>
-                            @if($transfer->tr_quantity > 0)
+                            @if($transfer->tr_in_quantity > 0)
                                 <span class="status-badge" style="background-color: #d1fae5; color: #065f46;">
                                     <i class="fas fa-arrow-down" style="font-size: 11px;"></i>
                                     Transfer In
                                 </span>
-                            @else
+                            @elseif($transfer->tr_out_quantity > 0)
                                 <span class="status-badge" style="background-color: #fee2e2; color: #991b1b;">
                                     <i class="fas fa-arrow-up" style="font-size: 11px;"></i>
                                     Transfer Out
+                                </span>
+                            @else
+                                <span class="status-badge" style="background-color: #f3f4f6; color: #6b7280;">
+                                    <i class="fas fa-question" style="font-size: 11px;"></i>
+                                    Unknown
                                 </span>
                             @endif
                         </td>
