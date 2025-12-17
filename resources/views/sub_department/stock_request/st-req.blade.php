@@ -123,24 +123,24 @@
 
 <!-- Template for dynamic rows -->
 <script type="text/template" id="row-template">
-<tr class="item-row">
-    <td>
-        <select name="items[__INDEX__][item_id]" class="form-control modern-select table-select" required>
-            <option value="">Select Item</option>
-            @foreach($items as $item)
-                <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
-            @endforeach
-        </select>
-    </td>
-    <td>
-        <input type="number" name="items[__INDEX__][quantity]" min="1" class="form-control modern-input" placeholder="Qty" required>
-    </td>
-    <td style="text-align: center;">
-        <button type="button" class="btn btn-danger btn-sm modern-btn-remove remove-row">
-            <i class="fas fa-trash"></i>
-        </button>
-    </td>
-</tr>
+    <tr class="item-row">
+        <td>
+            <select name="items[__INDEX__][item_id]" class="form-control modern-select table-select" required>
+                <option value="">Select Item</option>
+                @foreach($items as $item)
+                    <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
+                @endforeach
+            </select>
+        </td>
+        <td>
+            <input type="number" name="items[__INDEX__][quantity]" min="1" class="form-control modern-input" placeholder="Qty" required>
+        </td>
+        <td style="text-align: center;">
+            <button type="button" class="btn btn-danger btn-sm modern-btn-remove remove-row">
+                <i class="fas fa-trash"></i>
+            </button>
+        </td>
+    </tr>
 </script>
 
 @push('styles')

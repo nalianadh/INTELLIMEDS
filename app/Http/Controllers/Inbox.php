@@ -91,12 +91,30 @@ class Inbox extends Controller
         // Update transfer details
         $transfer->tr_transfer_status = 'Received';
         $transfer->tr_date_received = now();
-        $transfer->tr_received_by = session('loggedUser')->user_id; // use session
+        $transfer->tr_received_by = session('loggedUser')->user_id;
         $transfer->save();
+
+        // Update sub-department stock (ADD quantity)
+        $subStock = \App\Models\SubdepartmentStock::firstOrNew([
+            'user_id'        => session('loggedUser')->user_id,
+            'item_id'        => $transfer->item_id,
+            'sd_batchNumber' => $transfer->tr_batchNumber,
+            'sd_expiryDate'  => $transfer->tr_expiryDate,
+        ]);
+
+        // If new, initialize quantity
+        if ($subStock->exists) {
+            $subStock->sd_quantityInHand += $transfer->tr_out_quantity;
+        } else {
+            $subStock->sd_quantityInHand = $transfer->tr_out_quantity;
+        }
+
+        $subStock->save();
 
         return redirect()->route('subdept.inbox')
             ->with('success', 'Stock transfer accepted successfully.');
     }
+
 
 
     // Reject transfer

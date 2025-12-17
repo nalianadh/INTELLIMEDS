@@ -201,8 +201,8 @@ Route::get('/reports/supply-transaction', [ReportController::class, 'supplyTrans
 Route::get('/reports/stock-request/list', [ReportController::class, 'SRlist'])->name('reports.stock-request.list');
 Route::get('/reports/stock-request/view/{id}', [ReportController::class, 'showStockRequestSlip'])->name('reports.stock-request.view');
 
-//demand 
-Route::get('/predict-demand/{stockName}', [DemandController::class, 'predictDemand']); // ni untuk satu item je
-Route::get('/predict-all-demand', [DemandController::class, 'predictAllDemand'])->name('viewItemActivities'); // ni untuk semua item
+// DEMAND – Predict ALL stocks
+Route::get('/predict-all-demand', [DemandController::class, 'predict'])->name('viewItemActivities');
+
 
 

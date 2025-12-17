@@ -61,6 +61,10 @@
                     <p class="info-value item-name">{{ $stockRequest->item->i_name }}</p>
                 </div>
                 <div class="info-item">
+                    <label class="info-label"><i class="fas fa-tag"></i> Item Stock ID</label>
+                    <p class="info-value item-name">{{ $stockRequest->item->i_stockID }}</p>
+                </div>
+                <div class="info-item">
                     <label class="info-label"><i class="fas fa-sort-amount-up"></i> Quantity Requested</label>
                     <span class="quantity-display">{{ $stockRequest->rq_quantity_requested }}</span>
                 </div>

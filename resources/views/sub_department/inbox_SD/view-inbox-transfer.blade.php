@@ -115,7 +115,7 @@
                 </div>
                 <div class="quantity-info">
                     <div class="quantity-label">Quantity</div>
-                    <div class="quantity-value">{{ abs($transfer->tr_quantity) }}</div>
+                    <div class="quantity-value">{{ ($transfer->tr_out_quantity) }}</div>
                 </div>
             </div>
         </div>

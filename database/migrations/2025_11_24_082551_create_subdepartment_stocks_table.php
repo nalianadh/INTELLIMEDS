@@ -13,7 +13,7 @@ class CreateSubdepartmentStocksTable extends Migration
 
             // Foreign key: User (sub_department role)
             $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('u_id')->on('users')->onDelete('cascade');
+            $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
 
             // Foreign key: Item
             $table->unsignedBigInteger('item_id');

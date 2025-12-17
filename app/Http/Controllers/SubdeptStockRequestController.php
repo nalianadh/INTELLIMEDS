@@ -30,7 +30,7 @@ class SubdeptStockRequestController extends Controller
     }
 
     // ✅ Show in-hand stock from approved requests
-    public function inHandStock()
+    /*public function inHandStock()
     {
         $userId = session('loggedUser')->user_id;
 
@@ -61,7 +61,27 @@ class SubdeptStockRequestController extends Controller
             ->get();
 
         return view('sub_department.in-hand-stock.inhand-st', compact('finalStock'));
+    }*/
+    public function inHandStock()
+    {
+        $userId = session('loggedUser')->user_id;
+
+        // New logic: Read from subdepartment_stocks table directly
+        $finalStock = \DB::table('subdepartment_stocks')
+            ->join('items', 'subdepartment_stocks.item_id', '=', 'items.item_id')
+            ->select(
+                'items.i_name',
+                'subdepartment_stocks.sd_batchNumber',
+                'subdepartment_stocks.sd_expiryDate',
+                'subdepartment_stocks.sd_quantityInHand'
+            )
+            ->where('subdepartment_stocks.user_id', $userId)
+            ->orderBy('items.i_name')
+            ->get();
+
+        return view('sub_department.in-hand-stock.inhand-st', compact('finalStock'));
     }
+
 
 
 }

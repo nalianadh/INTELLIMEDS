@@ -73,7 +73,7 @@
                             Quantity
                         </td>
                         <td style="padding: 14px 0; color: #212529; font-size: 14px;">
-                            <span class="quantity-cell">{{ abs($transfer->tr_quantity) }}</span>
+                            <span class="quantity-cell">{{ $transfer->tr_in_quantity ?: $transfer->tr_out_quantity }}</span>
                         </td>
                     </tr>
                     <tr style="border-bottom: 1px solid #f3f4f6;">

@@ -57,6 +57,15 @@
             overflow-y: auto;
             transition: transform 0.3s ease;
         }
+        
+        .sidebar-logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            opacity: 0.95;
+        }
+
 
         .sidebar::-webkit-scrollbar {
             width: 6px;

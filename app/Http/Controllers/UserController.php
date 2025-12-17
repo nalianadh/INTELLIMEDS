@@ -6,12 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\ReceiveNote;
 use App\Models\StockTransfer;
 use App\Models\Item;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-    // ============================
+
     // MAIN STORE DASHBOARD
-    // ============================
     public function mainStoreDashboard()
     {
         if (!session()->has('loggedUser')) {
@@ -65,9 +65,7 @@ class UserController extends Controller
         ));
     }
 
-    // ============================
     // SUB DEPARTMENT DASHBOARD
-    // ============================
     public function subDeptDashboard()
     {
         if (!session()->has('loggedUser')) {
@@ -80,6 +78,44 @@ class UserController extends Controller
             return redirect('/login');
         }
 
-        return view('sub_department.dashboard', compact('user'));
+        $userId = $user->user_id;
+
+        // 1) Pending Requests
+        $pendingRequests = DB::table('stock_requests')
+            ->where('rq_requested_by', $userId)
+            ->where('rq_status', 'Pending')
+            ->count();
+
+        // 2) Received Stocks (Approved)
+        $inhand = DB::table('subdepartment_stocks')
+            ->where('user_id', $userId)
+            ->count();
+
+        // 3) Low Stock Items
+        $lowStockItems = DB::table('subdepartment_stocks AS sds')
+            ->join('items AS i', 'sds.item_id', '=', 'i.item_id')
+            ->select(
+                'sds.item_id',
+                'i.i_name',
+                'i.i_stockID',
+                'i.i_minLevel',
+                DB::raw('SUM(sds.sd_quantityInHand) AS net_quantity')
+            )
+            ->where('sds.user_id', $userId)
+            ->groupBy('sds.item_id', 'i.i_name', 'i.i_stockID', 'i.i_minLevel')
+            ->havingRaw('SUM(sds.sd_quantityInHand) <= i.i_minLevel')
+            ->get();
+
+        $lowStockCount = $lowStockItems->count();
+
+        return view('sub_department.dashboard', [
+            'user' => $user,
+            'pendingRequests' => $pendingRequests,
+            'inhand' => $inhand,
+            'lowStockCount' => $lowStockCount,
+            'lowStockItems' => $lowStockItems
+        ]);
     }
+
+
 }

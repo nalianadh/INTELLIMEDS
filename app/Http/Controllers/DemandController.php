@@ -7,124 +7,154 @@ use Illuminate\Support\Facades\Http;
 use App\Models\SupplyTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Log;
 
 class DemandController extends Controller
 {
-    public function predictDemand($stockName) // pass the Stock name
+    public function predict(Request $request)
     {
-        // Fetch all supply transactions for this stock
-        $transactions = SupplyTransaction::where('Stock', $stockName)->get();
-
-        if ($transactions->isEmpty()) {
-            return "No transactions found for stock: {$stockName}";
-        }
-
-        // Calculate features for the Random Forest model
-        $num_entries = $transactions->count();
-        $total_quantity = $transactions->sum('Quantity');
-        $avg_quantity = $transactions->avg('Quantity');
-
-        // Send features to Python API
-        $response = Http::post('http://localhost:5000/predict', [
-            'num_entries' => $num_entries,
-            'total_quantity' => $total_quantity,
-            'avg_quantity' => $avg_quantity
-        ]);
-
-        $prediction = $response->json()['prediction'];
-
-        return "Predicted demand for {$stockName}: " . $prediction;
-    }
-    
-    public function predictAllDemand()
-    {
-        // Get distinct stock names
+        // 1. Get ALL distinct stock names
         $stocks = SupplyTransaction::select('Stock')->distinct()->pluck('Stock');
+
+        // 2. Pre-calc overall average quantity per stock (avg_qty_stock)
+        $avgQuantities = SupplyTransaction::select('Stock', DB::raw('AVG(Quantity) as avg_qty_stock'))
+            ->groupBy('Stock')
+            ->pluck('avg_qty_stock', 'Stock');
 
         $results = [];
 
         foreach ($stocks as $stockName) {
-            // Fetch transactions for this stock
-            $transactions = SupplyTransaction::where('Stock', $stockName)->get();
 
-            if ($transactions->isEmpty()) continue;
+            // 3. Get the latest transaction for context (Brand, Year, Month, etc.)
+            $latestTransaction = SupplyTransaction::where('Stock', $stockName)
+                ->latest('Date')
+                ->first();
 
-            // 1. Number of entries
-            $num_entries = $transactions->count();
+            if (!$latestTransaction) {
+                $results[] = [
+                    'stock'          => $stockName,
+                    'demand'         => 'No Data',
+                    'num_entries'    => 0,
+                    'total_quantity' => 0,
+                    'avg_quantity'   => 0
+                ];
+                continue;
+            }
 
-            // 2. Total quantity
-            $total_quantity = $transactions->sum('Quantity');
+            // Extract latest year/month
+            $latestYear = (int) date('Y', strtotime($latestTransaction->Date));
+            $latestMonth = (int) date('m', strtotime($latestTransaction->Date));
 
-            // 3. Average quantity per month
-            $avg_quantity_per_month = SupplyTransaction::select(
-                    DB::raw('YEAR(Date) as year'),
-                    DB::raw('MONTH(Date) as month'),
-                    DB::raw('AVG(Quantity) as avg_quantity')
-                )
-                ->where('Stock', $stockName)
-                ->groupBy('year', 'month')
-                ->get();
+            // 4. Calculate TOTAL_QTY_MONTH
+            $totalQtyMonth = SupplyTransaction::where('Stock', $stockName)
+                ->whereYear('Date', $latestYear)
+                ->whereMonth('Date', $latestMonth)
+                ->sum('Quantity');
 
-            // Overall average across months
-            $avg_quantity = $avg_quantity_per_month->avg('avg_quantity');
+            // 5. Get avg_qty_stock from pre-calc
+            $avgQtyStock = (float) ($avgQuantities[$stockName] ?? 0);
 
-            // Send features to Python API
-            $response = Http::post('http://localhost:5000/predict', [
-                'num_entries' => $num_entries,
-                'total_quantity' => $total_quantity,
-                'avg_quantity' => $avg_quantity
-            ]);
+            // 6. API Payload (matches your Python model EXACTLY)
+            $payload = [
+                "Stock"           => $latestTransaction->Stock,
+                "Brand"           => $latestTransaction->Brand,
+                "Site_Supplier"   => $latestTransaction->Site_Supplier,
+                "Activity"        => $latestTransaction->Activity,
+                "Quantity"        => (float) $latestTransaction->Quantity,
+                "Unit"            => $latestTransaction->Unit,
 
-            $prediction = $response->json()['prediction'];
+                "Year"            => $latestYear,
+                "Month"           => $latestMonth,
 
-            // Store result
+                "total_qty_month" => (float) $totalQtyMonth,
+                "avg_qty_stock"   => $avgQtyStock,
+            ];
+
+            // 7. Send to FastAPI
+            try {
+                $response = Http::timeout(10)->post('http://localhost/predict', $payload);
+
+                if ($response->successful()) {
+
+                    /**
+                     * Your Python API returns JSON:
+                     * { "predicted_demand_level": "High" }
+                     */
+                    $prediction = $response->json()['predicted_demand_level'] ?? "Unknown";
+
+                } else {
+                    $prediction = "API Error";
+                    Log::error("[PREDICT] FastAPI returned error for {$stockName}. Status: {$response->status()}");
+                }
+
+            } catch (\Exception $e) {
+                $prediction = "Connection Error";
+                Log::error("[PREDICT] FastAPI Connection Error: " . $e->getMessage());
+            }
+
+            // 8. Store the result
             $results[] = [
-                'stock' => $stockName,
-                'num_entries' => $num_entries,
-                'total_quantity' => $total_quantity,
-                'avg_quantity' => $avg_quantity,
-                'demand' => $prediction
+                'stock'          => $stockName,
+                'demand'         => $prediction,
+                'num_entries'    => 1,
+                'total_quantity' => $totalQtyMonth,
+                'avg_quantity'   => $avgQtyStock,
             ];
         }
 
-        // Separate High and Low demand
-        $high = array_filter($results, fn($r) => $r['demand'] === 'High Demand');
-        $low = array_filter($results, fn($r) => $r['demand'] === 'Low Demand');
+        // -------------------------------------------------------
+        // 9. GROUP BY DEMAND LEVEL
+        // -------------------------------------------------------
+        $grouped = [
+            'High'      => [],
+            'Mid High'  => [],
+            'Medium'    => [],
+            'Mid Low'   => [],
+            'Low'       => [],
+            'Others'    => []
+        ];
 
-        // -----------------------------
-        // PAGINATION
-        // -----------------------------
+        foreach ($results as $r) {
+            $level = $r['demand'];
+            if (isset($grouped[$level])) {
+                $grouped[$level][] = $r;
+            } else {
+                $grouped['Others'][] = $r;
+            }
+        }
+
+        // -------------------------------------------------------
+        // 10. PAGINATE EACH GROUP
+        // -------------------------------------------------------
         $perPage = 10;
+        $paginated = [];
 
-        // Paginate High Demand items
-        $highCollection = collect($high);
-        $highCurrentPage = request()->get('high_page', 1);
-        $highPaginator = new LengthAwarePaginator(
-            $highCollection->forPage($highCurrentPage, $perPage),
-            $highCollection->count(),
-            $perPage,
-            $highCurrentPage,
-            ['path' => request()->url(), 'query' => ['low_page' => request()->get('low_page', 1)]]
-        );
+        foreach ($grouped as $level => $items) {
+            $pageKey = strtolower(str_replace(' ', '_', $level)) . '_page';
+            $currentPage = request()->get($pageKey, 1);
 
-        // Paginate Low Demand items
-        $lowCollection = collect($low);
-        $lowCurrentPage = request()->get('low_page', 1);
-        $lowPaginator = new LengthAwarePaginator(
-            $lowCollection->forPage($lowCurrentPage, $perPage),
-            $lowCollection->count(),
-            $perPage,
-            $lowCurrentPage,
-            ['path' => request()->url(), 'query' => ['high_page' => request()->get('high_page', 1)]]
-        );
+            $paginated[$level] = new LengthAwarePaginator(
+                collect($items)->forPage($currentPage, $perPage),
+                count($items),
+                $perPage,
+                $currentPage,
+                [
+                    'path'  => request()->url(),
+                    'query' => request()->except($pageKey)
+                ]
+            );
+        }
 
-        // Return view with paginated data
+        // -------------------------------------------------------
+        // 11. RETURN TO VIEW
+        // -------------------------------------------------------
         return view('main store.itemActivities.item-demand', [
-            'high' => $highPaginator,
-            'low' => $lowPaginator
+            'high'      => $paginated['High'],
+            'mid_high'  => $paginated['Mid High'],
+            'medium'    => $paginated['Medium'],
+            'mid_low'   => $paginated['Mid Low'],
+            'low'       => $paginated['Low'],
+            'others'    => $paginated['Others']
         ]);
     }
-
-
-
 }

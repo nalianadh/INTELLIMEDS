@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Item;
 use App\Models\StockRequest;
-use App\Models\User; // ✅ Needed for relations
+use App\Models\User; 
+use App\Models\SubdepartmentStock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -65,10 +66,7 @@ class StockRequestController extends Controller
             $query->where('rq_id', 'LIKE', '%' . $request->search . '%');
         }
 
-        $pendingRequests = StockRequest::with('requestedBy')
-            ->where('rq_status', 'Pending')
-            ->orderBy('rq_date_requested', 'desc')
-            ->get();
+        $pendingRequests = $query->get();
 
         return view('main store.stock request.stock-request', compact('pendingRequests'));
     }
@@ -104,10 +102,8 @@ class StockRequestController extends Controller
         ]);
 
         DB::transaction(function () use ($request, $id, $userId) {
-            // Find the stock request
             $stockRequest = StockRequest::where('request_id', $id)->firstOrFail();
 
-            // Update request approval details
             $stockRequest->rq_qty_approved = $request->rq_qty_approved;
             $stockRequest->rq_remarks = $request->rq_remarks;
             $stockRequest->rq_status = 'Approved';
@@ -115,8 +111,9 @@ class StockRequestController extends Controller
             $stockRequest->rq_approved_by = $userId;
             $stockRequest->save();
 
-            // Deduct from GRN batches
             $totalApproved = 0;
+            $firstGrn = null;
+
             foreach ($request->batches as $grnId => $qty) {
                 $qty = (int) $qty;
 
@@ -131,18 +128,48 @@ class StockRequestController extends Controller
                     $grn->save();
 
                     $totalApproved += $qty;
+
+                    if (!$firstGrn) {
+                        $firstGrn = $grn;
+                    }
                 }
             }
 
-            // Optional: Update total item stock if needed
             $item = $stockRequest->item;
             $item->i_quantity_in_stock = $item->receiveNotes()->sum('grn_available_qty');
             $item->save();
 
-            // Validate total approved matches sum of batch quantities
             if ($totalApproved != $request->rq_qty_approved) {
                 throw new \Exception("Total approved quantity does not match sum of batch quantities.");
             }
+
+            // ⭐ UPDATE SUBDEPARTMENT STOCK ⭐
+            $existingStock = SubdepartmentStock::where('user_id', $stockRequest->rq_requested_by)
+                ->where('item_id', $stockRequest->item_id)
+                ->first();
+
+            if ($existingStock) {
+                $existingStock->sd_quantityInHand += $stockRequest->rq_qty_approved;
+            } else {
+                $existingStock = new SubdepartmentStock([
+                    'user_id'           => $stockRequest->rq_requested_by,
+                    'item_id'           => $stockRequest->item_id,
+                    'sd_quantityInHand' => $stockRequest->rq_qty_approved,
+                ]);
+            }
+
+            // Use batch and expiry from the first supplied batch
+            if ($firstGrn) {
+                $expiry = $firstGrn->grn_itemExpiredDate;
+                // Ensure expiry is full date (YYYY-MM-DD)
+                if (substr_count($expiry, '-') == 1) {
+                    $expiry .= '-01';
+                }
+                $existingStock->sd_batchNumber = $firstGrn->grn_itemBatchNumber;
+                $existingStock->sd_expiryDate = $expiry;
+            }
+
+            $existingStock->save();
         });
 
         return redirect()
@@ -150,13 +177,10 @@ class StockRequestController extends Controller
             ->with('success', 'Stock request approved and batches updated successfully.');
     }
 
-
     public function view($id)
     {
         $stockRequest = StockRequest::with(['item', 'requestedBy'])->where('request_id', $id)->firstOrFail();
 
         return view('main store.stock request.view_request', compact('stockRequest'));
     }
-
-
 }

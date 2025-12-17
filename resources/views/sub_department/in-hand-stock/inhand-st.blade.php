@@ -10,18 +10,21 @@
         <thead>
             <tr>
                 <th style="border-bottom: 1px solid #ccc; padding: 8px;">Item Name</th>
-                <th style="border-bottom: 1px solid #ccc; padding: 8px; text-align:center;">Total Quantity</th>
+                <th style="border-bottom: 1px solid #ccc; padding: 8px; text-align:center;">Quantity In Hand</th>
             </tr>
         </thead>
         <tbody>
             @forelse($finalStock as $stock)
                 <tr>
                     <td style="padding: 8px;">{{ $stock->i_name }}</td>
-                    <td style="padding: 8px; text-align:center;">{{ abs($stock->total_quantity) }}</td>
+
+                    <td style="padding: 8px; text-align:center;">
+                        {{ abs($stock->sd_quantityInHand) }}
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="2" style="text-align:center; padding: 8px;">No approved stock found.</td>
+                    <td colspan="4" style="text-align:center; padding: 8px;">No in-hand stock available.</td>
                 </tr>
             @endforelse
         </tbody>

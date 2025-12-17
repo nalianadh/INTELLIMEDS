@@ -12,7 +12,8 @@ class StockTransfer extends Model
         'item_id',
         'tr_from_unit',
         'tr_destination',
-        'tr_quantity',
+        'tr_in_quantity',
+        'tr_out_quantity',
         'tr_transfer_status',
         'tr_requested_by',
         'tr_received_by',
@@ -20,6 +21,8 @@ class StockTransfer extends Model
         'tr_date_received',
         'tr_remarks',
         'user_id',
+        'tr_batchNumber',
+        'tr_expiryDate',
     ];
     public function item()
     {

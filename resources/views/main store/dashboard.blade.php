@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title')</title>
+    <title>Dashboard</title>
     <style>
         * {
             box-sizing: border-box;
@@ -384,7 +384,7 @@
                         <td>{{ $item->i_name }}</td>
                         <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
                         <td style="color:#e53935; font-weight:600;">
-                            {{ $item->i_quantity_in_stock }}
+                            {{ $item->quantity_in_stock }}
                         </td>
                         <td>{{ $item->i_minLevel }}</td>
                     </tr>

@@ -15,7 +15,7 @@ return new class extends Migration {
             $table->string('grn_supplier');
             $table->string('grn_po_number')->nullable();
             $table->text('grn_remarks')->nullable();
-            $table->string('grn_itemExpiredDate', 7)->nullable();
+            $table->string('grn_itemExpiredDate', 10)->nullable();
             $table->string('grn_itemBatchNumber')->nullable();
             $table->timestamps();
 

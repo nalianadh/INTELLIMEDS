@@ -25,16 +25,17 @@
                     <div class="form-group modern-form-group">
                         <label for="tr_from_unit" class="modern-label">
                             <i class="fas fa-hospital"></i>
-                            From (Ward/Unit/Facilities)
+                            From (Your Unit)
                         </label>
-                        <input type="text" name="tr_from_unit" id="tr_from_unit" class="modern-input" placeholder="Enter source location" required>
+                        <input type="text" name="tr_from_unit" id="tr_from_unit" class="modern-input" value="{{ $unitName }}" readonly>
                     </div>
                     <div class="form-group modern-form-group">
-                        <label for="tr_destination" class="modern-label">
+                        <label class="modern-label">
                             <i class="fas fa-map-marker-alt"></i>
-                            To (Ward/Unit/Facilities)
+                            To Main Store
                         </label>
-                        <input type="text" name="tr_destination" id="tr_destination" class="modern-input" placeholder="Enter destination location" required>
+                        <input type="hidden" name="tr_destination" value="Main Store">
+                        <div class="modern-input" style="background: #f8f9fa; cursor: not-allowed;">Main Store</div>
                     </div>
                 </div>
             </div>
@@ -62,7 +63,7 @@
                             <label class="modern-label">Item</label>
                             <select name="items[0][item_id]" class="item-select modern-select" data-index="0" required>
                                 <option value="">Select Item</option>
-                                @foreach($inHandStock as $item)
+                                @foreach($inHandItems as $item)
                                     <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
                                 @endforeach
                             </select>
@@ -437,15 +438,7 @@
 @push('scripts')
 <script>
 // Prepare batch/expiry data for JS
-const batchExpiryData = {
-    @foreach($items as $item)
-        {{ $item->item_id }}: [
-            @foreach($item->receiveNotes as $note)
-                { batch: "{{ $note->grn_itemBatchNumber }}", expiry: "{{ $note->grn_itemExpiredDate }}" },
-            @endforeach
-        ],
-    @endforeach
-};
+const batchExpiryData = @json($batchExpiryData);
 
 function updateBatchExpirySelect(itemSelect, batchExpirySelect) {
     const itemId = itemSelect.value;
@@ -476,8 +469,8 @@ document.getElementById('add-item').addEventListener('click', function() {
             <label class="modern-label">Item</label>
             <select name="items[${itemIndex}][item_id]" class="item-select modern-select" data-index="${itemIndex}" required>
                 <option value="">Select Item</option>
-                @foreach($items as $item)
-                    <option value="{{ $item->item_id }}">{{ $item->i_stockID }} ({{ $item->i_name }})</option>
+                @foreach($inHandItems as $item)
+                    <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
                 @endforeach
             </select>
         </div>

@@ -47,8 +47,28 @@
         font-size: 24px;
     }
 
+    .section-title.mid_high::before {
+        content: "⚡";
+        font-size: 24px;
+    }
+
+    .section-title.medium::before {
+        content: "🔹";
+        font-size: 24px;
+    }
+
+    .section-title.mid_low::before {
+        content: "🔸";
+        font-size: 24px;
+    }
+
     .section-title.low::before {
         content: "📉";
+        font-size: 24px;
+    }
+
+    .section-title.others::before {
+        content: "❓";
         font-size: 24px;
     }
 
@@ -106,16 +126,41 @@
         letter-spacing: 0.5px;
     }
 
+    /* Badge colors for each demand level */
     .demand-badge.high {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         color: white;
         box-shadow: 0 2px 4px rgba(16, 185, 129, 0.25);
     }
 
+    .demand-badge.mid_high {
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+    }
+
+    .demand-badge.medium {
+        background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(250, 204, 21, 0.25);
+    }
+
+    .demand-badge.mid_low {
+        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        color: white;
+        box-shadow: 0 2px 4px rgba(249, 115, 22, 0.25);
+    }
+
     .demand-badge.low {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         box-shadow: 0 2px 4px rgba(239, 68, 68, 0.25);
+    }
+
+    .demand-badge.others {
+        background: #6c757d;
+        color: white;
+        box-shadow: 0 2px 4px rgba(108, 117, 125, 0.25);
     }
 
     .pagination-wrapper {
@@ -184,66 +229,61 @@
         <p>Home / Stock Activities</p>
     </div>
 
-    <!-- HIGH DEMAND SECTION -->
-    <div class="demand-section">
-        <h3 class="section-title high">High Demand Items</h3>
-        <table class="demand-table">
-            <thead>
-                <tr>
-                    <th>Stock</th>
-                    <th>Entries</th>
-                    <th>Total Quantity (Yearly)</th>
-                    <th>Average Quantity (Monthly)</th>
-                    <th>Demand</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($high as $item)
-                <tr>
-                    <td>{{ $item['stock'] }}</td>
-                    <td>{{ $item['num_entries'] }}</td>
-                    <td>{{ $item['total_quantity'] }}</td>
-                    <td>{{ number_format($item['avg_quantity'], 2) }}</td>
-                    <td><span class="demand-badge high">{{ $item['demand'] }}</span></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <!-- High Demand Pagination -->
-        <div class="pagination-wrapper">
-            {{ $high->appends(['low_page' => request()->get('low_page', 1)])->links('pagination::bootstrap-4') }}
-        </div>
-    </div>
+    @php
+        $demandLevels = [
+            'High'      => 'high',
+            'Mid High'  => 'mid_high',
+            'Medium'    => 'medium',
+            'Mid Low'   => 'mid_low',
+            'Low'       => 'low',
+            'Others'    => 'others',
+        ];
+    @endphp
 
-    <!-- LOW DEMAND SECTION -->
-    <div class="demand-section">
-        <h3 class="section-title low">Low Demand Items</h3>
-        <table class="demand-table">
-            <thead>
-                <tr>
-                    <th>Stock</th>
-                    <th>Entries</th>
-                    <th>Total Quantity (Yearly)</th>
-                    <th>Average Quantity (Monthly)</th>
-                    <th>Demand</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($low as $item)
-                <tr>
-                    <td>{{ $item['stock'] }}</td>
-                    <td>{{ $item['num_entries'] }}</td>
-                    <td>{{ $item['total_quantity'] }}</td>
-                    <td>{{ number_format($item['avg_quantity'], 2) }}</td>
-                    <td><span class="demand-badge low">{{ $item['demand'] }}</span></td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <!-- Low Demand Pagination -->
-        <div class="pagination-wrapper">
-            {{ $low->appends(['high_page' => request()->get('high_page', 1)])->links('pagination::bootstrap-4') }}
+    @foreach($demandLevels as $level => $cssClass)
+        @php $items = $$cssClass ?? collect(); @endphp
+        @if($items->isNotEmpty())
+        <div class="demand-section">
+            <h3 class="section-title {{ $cssClass }}">
+                {{ $level }} Demand Items
+            </h3>
+            <table class="demand-table">
+                <thead>
+                    <tr>
+                        <th>Stock</th>
+                        <th>Total Quantity (By latest month)</th>
+                        <th>Overall Average Quantity</th>
+                        <th>Demand</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($items as $item)
+                    <tr>
+                        <td>{{ $item['stock'] }}</td>
+                        <td>{{ $item['total_quantity'] }}</td>
+                        <td>{{ number_format($item['avg_quantity'], 2) }}</td>
+                        <td>
+                            <span class="demand-badge {{ $cssClass }}">
+                                {{ $item['demand'] }}
+                            </span>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+            <div class="pagination-wrapper">
+                {{ $items->appends([
+                    'high_page'      => request()->get('high_page', 1),
+                    'mid_high_page'  => request()->get('mid_high_page', 1),
+                    'medium_page'    => request()->get('medium_page', 1),
+                    'mid_low_page'   => request()->get('mid_low_page', 1),
+                    'low_page'       => request()->get('low_page', 1),
+                    'others_page'    => request()->get('others_page', 1),
+                ])->links('pagination::bootstrap-4') }}
+            </div>
         </div>
-    </div>
+        @endif
+    @endforeach
 </div>
 @endsection
