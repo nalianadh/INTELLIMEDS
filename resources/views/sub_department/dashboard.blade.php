@@ -142,6 +142,7 @@
                     <th>Stock ID</th>
                     <th>In Stock</th>
                     <th>Min Level</th>
+                    <th>Actions </th>
                 </tr>
             </thead>
             <tbody>
@@ -151,6 +152,11 @@
                     <td>{{ $item->i_stockID }}</td>
                     <td class="low-stock">{{ abs($item->net_quantity) }}</td>
                     <td>{{ $item->i_minLevel }}</td>
+                    <td>
+                        <a href="{{ route('subdept.request', ['item_id' => $item->item_id]) }}" 
+                           style="padding: 6px 12px; background: #0f3e59; color: #fff; border-radius: 4px; text-decoration: none; font-size: 14px;">
+                           Request Stock
+                        </a>
                 </tr>
             @empty
                 <tr>

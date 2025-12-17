@@ -12,10 +12,6 @@
         class="{{ request()->routeIs('mainstore.inbox') ? 'active' : '' }}" 
         style="position: relative;">
         <i class="fas fa-inbox"></i> Inbox
-        {{-- This variable must now be available globally via a View Composer --}}
-        @if(!empty($unreadInbox) && $unreadInbox > 0) 
-            <span class="badge">{{ $unreadInbox }}</span>
-        @endif
     </a>
 
     <div class="dropdown">
@@ -47,8 +43,8 @@
        class="{{ request()->routeIs('stock.request.list') ? 'active' : '' }}" 
        style="position: relative;">
         <i class="fas fa-hand-paper"></i> Stock Request
-        @if(!empty($unreadRequests) && $unreadRequests > 0)
-            <span class="badge">{{ $unreadRequests }}</span>
+        @if(!empty($pendingRequests) && $pendingRequests > 0)
+            <span class="badge">{{ $pendingRequests }}</span>
         @endif
     </a>
 

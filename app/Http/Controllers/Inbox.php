@@ -81,6 +81,13 @@ class Inbox extends Controller
     {
         $transfer = StockTransfer::findOrFail($id);
 
+        // Mark as read
+        \App\Models\ReadStatus::firstOrCreate([
+            'user_id' => session('loggedUser')->user_id,
+            'messageable_type' => StockTransfer::class,
+            'messageable_id' => $id,
+        ]);
+
         // Deduct from main store stock
         $mainItem = Item::where('item_id', $transfer->item_id)->first();
         if ($mainItem) {
@@ -121,6 +128,14 @@ class Inbox extends Controller
     public function reject($id)
     {
         $transfer = StockTransfer::findOrFail($id);
+
+        // Mark as read
+        \App\Models\ReadStatus::firstOrCreate([
+            'user_id' => session('loggedUser')->user_id,
+            'messageable_type' => StockTransfer::class,
+            'messageable_id' => $id,
+        ]);
+
         $transfer->tr_transfer_status = 'Rejected';
         $transfer->tr_date_received = now();
         $transfer->tr_received_by = session('loggedUser')->user_id; // use session
@@ -151,9 +166,7 @@ class Inbox extends Controller
             });
 
         // Fetch requests
-        $requestMessages = StockRequest::whereHas('user', function ($q) use ($department) {
-                $q->where('u_unit', $department);
-            })
+        $requestMessages = StockRequest::where('rq_status', 'Pending')
             ->orderBy('rq_date_requested', 'desc')
             ->get()
             ->map(function ($req) {
@@ -251,6 +264,13 @@ class Inbox extends Controller
     {
         $transfer = StockTransfer::findOrFail($id);
 
+        // Mark as read
+        ReadStatus::firstOrCreate([
+            'user_id' => session('loggedUser')->user_id,
+            'messageable_type' => StockTransfer::class,
+            'messageable_id' => $id,
+        ]);
+
         // Deduct from main store stock
         $mainItem = Item::where('item_id', $transfer->item_id)->first();
         if ($mainItem) {
@@ -272,6 +292,14 @@ class Inbox extends Controller
     public function rejectMS($id)
     {
         $transfer = StockTransfer::findOrFail($id);
+
+        // Mark as read
+        ReadStatus::firstOrCreate([
+            'user_id' => session('loggedUser')->user_id,
+            'messageable_type' => StockTransfer::class,
+            'messageable_id' => $id,
+        ]);
+
         $transfer->tr_transfer_status = 'Rejected';
         $transfer->tr_date_received = now();
         $transfer->tr_received_by = session('loggedUser')->user_id; // use session

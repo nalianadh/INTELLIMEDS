@@ -10,6 +10,8 @@
         <thead>
             <tr>
                 <th style="border-bottom: 1px solid #ccc; padding: 8px;">Item Name</th>
+                <th style="border-bottom: 1px solid #ccc; padding: 8px; text-align:center;">Batch Number</th>
+                <th style="border-bottom: 1px solid #ccc; padding: 8px; text-align:center;">Expiry Date</th>
                 <th style="border-bottom: 1px solid #ccc; padding: 8px; text-align:center;">Quantity In Hand</th>
             </tr>
         </thead>
@@ -17,9 +19,10 @@
             @forelse($finalStock as $stock)
                 <tr>
                     <td style="padding: 8px;">{{ $stock->i_name }}</td>
-
+                    <td style="padding: 8px; text-align:center;">{{ $stock->sd_batchNumber ?: '-' }}</td>
+                    <td style="padding: 8px; text-align:center;">{{ $stock->sd_expiryDate ? \Carbon\Carbon::parse($stock->sd_expiryDate)->format('d M Y') : '-' }}</td>
                     <td style="padding: 8px; text-align:center;">
-                        {{ abs($stock->sd_quantityInHand) }}
+                        {{ $stock->sd_quantityInHand }}
                     </td>
                 </tr>
             @empty

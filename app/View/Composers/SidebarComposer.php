@@ -31,9 +31,7 @@ class SidebarComposer
             ->get()
             ->map(fn ($msg) => ['type' => 'transfer', 'id' => $msg->transfer_id]);
 
-        $requestMessages = StockRequest::whereHas('user', function ($q) use ($department) {
-                $q->where('u_unit', $department);
-            })
+        $requestMessages = StockRequest::where('rq_status', 'Pending')
             ->get()
             ->map(fn ($req) => ['type' => 'request', 'id' => $req->request_id]);
 
@@ -63,13 +61,15 @@ class SidebarComposer
         // Calculate counts
         $unreadInbox = $messages->where('read_status', 'Unread')->count();
         $unreadRequests = $messages->where('type', 'request')->where('read_status', 'Unread')->count();
+        $pendingRequests = StockRequest::where('rq_status', 'Pending')->count();
 
         // --- END Logic copied from your Controller ---
 
         // Share variables with the view
         $view->with([
             'unreadInbox' => $unreadInbox,
-            'unreadRequests' => $unreadRequests
+            'unreadRequests' => $unreadRequests,
+            'pendingRequests' => $pendingRequests
         ]);
     }
 }

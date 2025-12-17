@@ -44,7 +44,7 @@
                     </label>
                     <select class="form-control modern-select" name="department" id="department" required>
                         <option value="">Choose a department...</option>
-                        <option value="Main Store">Main Store</option>
+                        <option value="Main Store" selected>Main Store</option>
                         <option value="ICU">ICU (Intensive Care Unit)</option>
                         <option value="Ward">Ward</option>
                         <option value="ER">ER (Emergency Room)</option>
@@ -89,7 +89,7 @@
                                 <select name="items[0][item_id]" class="form-control modern-select table-select" required>
                                     <option value="">Select Item</option>
                                     @foreach($items as $item)
-                                        <option value="{{ $item->item_id }}">{{ $item->i_name }}</option>
+                                        <option value="{{ $item->item_id }}" {{ isset($prefilledItem) && $prefilledItem->item_id == $item->item_id ? 'selected' : '' }}>{{ $item->i_name }}</option>
                                     @endforeach
                                 </select>
                             </td>

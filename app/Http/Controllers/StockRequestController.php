@@ -7,19 +7,24 @@ use App\Models\Item;
 use App\Models\StockRequest;
 use App\Models\User; 
 use App\Models\SubdepartmentStock;
+use App\Models\ReadStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class StockRequestController extends Controller
 {
-    public function create()
+    public function create(Request $request)
     {
         if (!session()->has('loggedUser')) {
             return redirect('/login');
         }
 
         $items = Item::orderBy('i_name')->get();
-        return view('sub_department.stock_request.st-req', compact('items'));
+        $prefilledItem = null;
+        if ($request->has('item_id')) {
+            $prefilledItem = Item::find($request->item_id);
+        }
+        return view('sub_department.stock_request.st-req', compact('items', 'prefilledItem'));
     }
 
     public function store(Request $request)
@@ -110,6 +115,13 @@ class StockRequestController extends Controller
             $stockRequest->rq_date_approved = now();
             $stockRequest->rq_approved_by = $userId;
             $stockRequest->save();
+
+            // Mark as read
+            \App\Models\ReadStatus::firstOrCreate([
+                'user_id' => $userId,
+                'messageable_type' => StockRequest::class,
+                'messageable_id' => $id,
+            ]);
 
             $totalApproved = 0;
             $firstGrn = null;
