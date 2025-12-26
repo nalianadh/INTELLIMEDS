@@ -202,7 +202,7 @@ Route::get('/reports/stock-request/list', [ReportController::class, 'SRlist'])->
 Route::get('/reports/stock-request/view/{id}', [ReportController::class, 'showStockRequestSlip'])->name('reports.stock-request.view');
 
 // DEMAND – Predict ALL stocks
-Route::get('/predict-all-demand', [DemandController::class, 'predict'])->name('viewItemActivities');
+Route::get('/predict-all-demand', [DemandController::class, 'predict'])->name('demand.predict');
 
 
 

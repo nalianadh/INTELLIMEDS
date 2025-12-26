@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\SupplyTransaction;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Log;
 
 class DemandController extends Controller
@@ -54,33 +53,31 @@ class DemandController extends Controller
             // 5. Get avg_qty_stock from pre-calc
             $avgQtyStock = (float) ($avgQuantities[$stockName] ?? 0);
 
-            // 6. API Payload (matches your Python model EXACTLY)
+            // 6. API Payload (matches FastAPI model)
             $payload = [
-                "Stock"           => $latestTransaction->Stock,
-                "Brand"           => $latestTransaction->Brand,
-                "Site_Supplier"   => $latestTransaction->Site_Supplier,
-                "Activity"        => $latestTransaction->Activity,
-                "Quantity"        => (float) $latestTransaction->Quantity,
-                "Unit"            => $latestTransaction->Unit,
-
-                "Year"            => $latestYear,
-                "Month"           => $latestMonth,
-
-                "total_qty_month" => (float) $totalQtyMonth,
-                "avg_qty_stock"   => $avgQtyStock,
+                "stock"         => $latestTransaction->Stock,
+                "brand"         => $latestTransaction->Brand,
+                "site_supplier" => $latestTransaction->Site_Supplier,
+                "activity"      => $latestTransaction->Activity,
+                "quantity"      => (float) $latestTransaction->Quantity,
+                "unit"          => $latestTransaction->Unit,
+                "year"          => $latestYear,
+                "month"         => $latestMonth
             ];
 
             // 7. Send to FastAPI
             try {
-                $response = Http::timeout(10)->post('http://localhost/predict', $payload);
+                $response = Http::timeout(10)->post('http://127.0.0.1:8000/predict', $payload);
 
                 if ($response->successful()) {
+                    $predictionRaw = $response->json()['predicted_demand'] ?? "Unknown";
 
-                    /**
-                     * Your Python API returns JSON:
-                     * { "predicted_demand_level": "High" }
-                     */
-                    $prediction = $response->json()['predicted_demand_level'] ?? "Unknown";
+                    // Normalize prediction to match allowed levels
+                    $prediction = ucwords(strtolower(trim($predictionRaw)));
+                    $allowedLevels = ['High','Mid High','Medium','Mid Low','Low'];
+                    if (!in_array($prediction, $allowedLevels)) {
+                        $prediction = 'Others';
+                    }
 
                 } else {
                     $prediction = "API Error";
@@ -124,37 +121,15 @@ class DemandController extends Controller
         }
 
         // -------------------------------------------------------
-        // 10. PAGINATE EACH GROUP
-        // -------------------------------------------------------
-        $perPage = 10;
-        $paginated = [];
-
-        foreach ($grouped as $level => $items) {
-            $pageKey = strtolower(str_replace(' ', '_', $level)) . '_page';
-            $currentPage = request()->get($pageKey, 1);
-
-            $paginated[$level] = new LengthAwarePaginator(
-                collect($items)->forPage($currentPage, $perPage),
-                count($items),
-                $perPage,
-                $currentPage,
-                [
-                    'path'  => request()->url(),
-                    'query' => request()->except($pageKey)
-                ]
-            );
-        }
-
-        // -------------------------------------------------------
-        // 11. RETURN TO VIEW
+        // 10. RETURN TO VIEW
         // -------------------------------------------------------
         return view('main store.itemActivities.item-demand', [
-            'high'      => $paginated['High'],
-            'mid_high'  => $paginated['Mid High'],
-            'medium'    => $paginated['Medium'],
-            'mid_low'   => $paginated['Mid Low'],
-            'low'       => $paginated['Low'],
-            'others'    => $paginated['Others']
+            'high'      => $grouped['High'],
+            'mid_high'  => $grouped['Mid High'],
+            'medium'    => $grouped['Medium'],
+            'mid_low'   => $grouped['Mid Low'],
+            'low'       => $grouped['Low'],
+            'others'    => $grouped['Others']
         ]);
     }
 }

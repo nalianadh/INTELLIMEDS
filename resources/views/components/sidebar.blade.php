@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <a href="{{ route('viewItemActivities') }}">
+    <a href="{{ route('demand.predict') }}">
         <i class="fas fa-history"></i> Stock Activities
     </a>
 
