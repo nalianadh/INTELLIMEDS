@@ -3,6 +3,7 @@
 # ================================================================
 import pickle
 import pandas as pd
+import numpy as np
 from fastapi import FastAPI
 from pydantic import BaseModel
 from sqlalchemy import create_engine
@@ -59,31 +60,40 @@ def load_supply_data():
     return df[FEATURES].dropna()
 
 # ================================================================
-# 6. PREDICTION FUNCTION
+# 6. SAFE ENCODING FUNCTION
 # ================================================================
-def predict_batch(df):
+def safe_encode(df):
     df_encoded = df.copy()
-
-    # Encode categorical columns
     for col in df_encoded.columns:
         if col in encoders:
-            df_encoded[col] = encoders[col].transform(df_encoded[col])
+            encoder = encoders[col]
+            # Replace unknown values with 'Unknown'
+            df_encoded[col] = df_encoded[col].apply(lambda x: x if x in encoder.classes_ else "Unknown")
+            # Add 'Unknown' to encoder classes if not present
+            if "Unknown" not in encoder.classes_:
+                encoder.classes_ = np.append(encoder.classes_, "Unknown")
+            df_encoded[col] = encoder.transform(df_encoded[col])
+    return df_encoded
 
-    # Predict
+# ================================================================
+# 7. PREDICTION FUNCTION FOR BATCH DATA
+# ================================================================
+def predict_batch(df):
+    df_encoded = safe_encode(df)
+
     predictions = model.predict(df_encoded)
 
-    # Map numeric prediction to demand label safely
     df["Predicted_Demand"] = [label_mapping.get(int(p), "Unknown") for p in predictions]
 
     return df
 
 # ================================================================
-# 7. FASTAPI APP
+# 8. FASTAPI APP
 # ================================================================
 app = FastAPI(title="INTELLIMEDS ML API")
 
 # ================================================================
-# 8. REQUEST MODEL
+# 9. REQUEST MODEL
 # ================================================================
 class PredictionRequest(BaseModel):
     stock: str
@@ -96,11 +106,10 @@ class PredictionRequest(BaseModel):
     month: int
 
 # ================================================================
-# 9. SINGLE PREDICTION ENDPOINT
+# 10. SINGLE PREDICTION ENDPOINT
 # ================================================================
 @app.post("/predict")
 def predict_demand(data: PredictionRequest):
-
     input_df = pd.DataFrame([{
         "Stock": data.stock,
         "Brand": data.brand,
@@ -112,21 +121,19 @@ def predict_demand(data: PredictionRequest):
         "Month": data.month
     }])
 
-    # Encode categorical columns
-    for col in input_df.columns:
-        if col in encoders:
-            input_df[col] = encoders[col].transform(input_df[col])
+    # Safe encoding
+    input_encoded = safe_encode(input_df)
 
     # Predict
-    prediction = model.predict(input_df)[0]
+    prediction = model.predict(input_encoded)[0]
 
-    # Map to label safely
+    # Map to label
     demand_label = label_mapping.get(int(prediction), "Unknown")
 
     return {"predicted_demand": demand_label}
 
 # ================================================================
-# 10. BATCH PREDICTION ENDPOINT
+# 11. BATCH PREDICTION ENDPOINT
 # ================================================================
 @app.get("/predict_all")
 def predict_all_supply():
@@ -146,7 +153,7 @@ def predict_all_supply():
     }
 
 # ================================================================
-# 11. HEALTH CHECK
+# 12. HEALTH CHECK
 # ================================================================
 @app.get("/")
 def root():

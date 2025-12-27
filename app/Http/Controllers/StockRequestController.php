@@ -182,6 +182,43 @@ class StockRequestController extends Controller
             }
 
             $existingStock->save();
+
+            // ==============================
+            // CREATE SUPPLY TRANSACTION LOG
+            // ==============================
+            try {
+                $response = Http::post('http://127.0.0.1:8000/predict', [
+                    'stock'          => $stockRequest->item->i_name,
+                    'brand'          => $stockRequest->item->i_description ?? '',
+                    'site_supplier'  => 'Main Store',
+                    'activity'       => 'SUPPLY',
+                    'quantity'       => $stockRequest->rq_qty_approved,
+                    'unit'           => $stockRequest->item->i_unit ?? '',
+                    'year'           => now()->year,
+                    'month'          => now()->month,
+                ]);
+
+                if ($response->successful()) {
+                    $demandLevel = $response->json()['predicted_demand'] ?? null;
+                } else {
+                    $demandLevel = null;
+                }
+            } catch (\Exception $e) {
+                $demandLevel = null;
+            }
+
+            \App\Models\SupplyTransaction::create([
+                'ref_request_id' => $stockRequest->request_id, // store as reference only
+                'Date'           => now(),
+                'Stock_ID'       => $stockRequest->item->i_stockID,
+                'Stock'          => $stockRequest->item->i_name,
+                'Brand'          => $stockRequest->item->i_description ?? null,
+                'Site_Supplier'  => 'Main Store',
+                'Activity'       => 'SUPPLY',
+                'Quantity'       => $stockRequest->rq_qty_approved,
+                'Unit'           => $stockRequest->item->i_unit ?? null,
+                'Demand_Level'   => $demandLevel,
+            ]);
         });
 
         return redirect()

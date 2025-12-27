@@ -11,6 +11,7 @@ class SupplyTransaction extends Model
     public $timestamps = false;
 
     protected $fillable = [
+        'ref_request_id',
         'Date',
         'Stock_ID',
         'Stock',
@@ -18,7 +19,8 @@ class SupplyTransaction extends Model
         'Site_Supplier',
         'Activity',
         'Quantity',
-        'Unit'
+        'Unit',
+        'Demand_Level'
     ];
 
     // Relation: Stock in supply_transaction matches i_name in items
