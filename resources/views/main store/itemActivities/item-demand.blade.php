@@ -23,13 +23,15 @@
 
 
 
-    /* Action Bar */
+    /* Fix white background behind Refresh button */
     .action-bar {
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        margin-bottom: 32px;
+        margin-bottom: 40px;
+        background: transparent !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
     }
+
 
     .refresh-btn { 
         padding: 12px 28px; 

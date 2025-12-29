@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
