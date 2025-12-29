@@ -262,6 +262,23 @@
             <span>Refresh Predictions</span>
         </button>
     </form>
+    <div style="margin-bottom: 24px;">
+        <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search stock name..."
+            style="
+                width: 100%;
+                padding: 12px 16px;
+                border-radius: 10px;
+                border: 1px solid #e2e8f0;
+                font-size: 14px;
+                outline: none;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            "
+            onkeyup="filterTables()">
+    </div>
+
 
     @php
         $demandLevels = [
@@ -310,4 +327,32 @@
         </div>
     @endforeach
 </div>
+<script>
+    function filterTables() {
+        const input = document.getElementById("searchInput").value.toLowerCase();
+        const tables = document.querySelectorAll(".demand-table");
+
+        tables.forEach(table => {
+            const rows = table.querySelectorAll("tbody tr");
+            let hasVisibleRow = false;
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(input)) {
+                    row.style.display = "";
+                    hasVisibleRow = true;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            // Hide entire section if no rows match
+            const section = table.closest(".demand-section");
+            if (section) {
+                section.style.display = hasVisibleRow ? "block" : "none";
+            }
+        });
+    }
+</script>
+
 @endsection
