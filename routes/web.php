@@ -107,7 +107,7 @@ Route::get('/main-store/stock-receive', function () {
     }
     $items = \App\Models\Item::orderByDesc('created_at')->get();
     return view('main store.stock-receive', compact('user', 'items'));
-})->name('stock.receive');
+})->name('mainstore.stock.receive'); // sebelum ni stock.receive
 
 // Handle Stock Receive Form Submission
 Route::post('/main-store/stock-receive', [StockReceive::class, 'store'])->name('stock.receive.store');
