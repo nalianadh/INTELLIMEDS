@@ -110,7 +110,7 @@ Route::get('/main-store/stock-receive', function () {
 })->name('mainstore.stock.receive'); // sebelum ni stock.receive
 
 // Handle Stock Receive Form Submission
-Route::post('/main-store/stock-receive', [StockReceive::class, 'store'])->name('stock.receive.store');
+//Route::post('/main-store/stock-receive', [StockReceive::class, 'store'])->name('stock.receive.store');
 
 // Stock Receive
 Route::get('/stock-receive', [App\Http\Controllers\StockReceive::class, 'create'])->name('stock.receive');
