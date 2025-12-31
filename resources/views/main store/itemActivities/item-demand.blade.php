@@ -21,17 +21,16 @@
 
     .main { background: var(--bg-light); min-height: 100vh; padding: 32px; }
 
-
-
-    /* Fix white background behind Refresh button */
+    /* Fix white background behind buttons */
     .action-bar {
         margin-bottom: 40px;
         background: transparent !important;
         padding: 0 !important;
         box-shadow: none !important;
         border: none !important;
+        display: flex;
+        gap: 12px;
     }
-
 
     .refresh-btn { 
         padding: 12px 28px; 
@@ -74,7 +73,7 @@
         transform: translateY(-2px);
     }
 
-    /* Section Titles with Enhanced Icons */
+    /* Section Titles */
     .section-title { 
         font-size: 22px; 
         font-weight: 700; 
@@ -120,25 +119,7 @@
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
     }
 
-    /* Premium Scrollbar Styling */
-    .table-scroll-container::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
-    }
-    .table-scroll-container::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 10px;
-    }
-    .table-scroll-container::-webkit-scrollbar-thumb {
-        background: linear-gradient(135deg, var(--primary-navy) 0%, var(--accent-teal) 100%);
-        border-radius: 10px;
-        border: 2px solid #f1f5f9;
-    }
-    .table-scroll-container::-webkit-scrollbar-thumb:hover {
-        background: linear-gradient(135deg, var(--accent-teal) 0%, var(--primary-navy) 100%);
-    }
-
-    /* Professional Table Styling */
+    /* Table Styling */
     .demand-table { 
         width: 100%; 
         border-collapse: separate; 
@@ -171,15 +152,8 @@
     .demand-table tbody tr:last-child td { 
         border-bottom: none; 
     }
-    .demand-table tbody tr { 
-        transition: all 0.2s ease; 
-    }
-    .demand-table tbody tr:hover { 
-        background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
-        transform: scale(1.002);
-    }
 
-    /* Premium Demand Badges */
+    /* Demand Badges */
     .demand-badge { 
         display: inline-flex;
         align-items: center;
@@ -190,36 +164,13 @@
         text-transform: uppercase; 
         letter-spacing: 0.8px;
         box-shadow: var(--shadow-sm);
-        transition: all 0.2s ease;
     }
-    .demand-badge:hover {
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-    }
-    .demand-badge.high { 
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-        color: white;
-    }
-    .demand-badge.mid_high { 
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
-        color: white;
-    }
-    .demand-badge.medium { 
-        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); 
-        color: white;
-    }
-    .demand-badge.mid_low { 
-        background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); 
-        color: white;
-    }
-    .demand-badge.low { 
-        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); 
-        color: white;
-    }
-    .demand-badge.others { 
-        background: linear-gradient(135deg, #64748b 0%, #475569 100%); 
-        color: white;
-    }
+    .demand-badge.high { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
+    .demand-badge.mid_high { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; }
+    .demand-badge.medium { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+    .demand-badge.mid_low { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; }
+    .demand-badge.low { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+    .demand-badge.others { background: linear-gradient(135deg, #64748b 0%, #475569 100%); color: white; }
 
     /* Empty State */
     .empty-state {
@@ -233,17 +184,12 @@
         border: 2px dashed var(--border-light);
     }
 
-    /* Responsive Design */
     @media (max-width: 768px) {
         .main { padding: 20px; }
         .demand-section { padding: 20px; }
-        .demand-header h2 { font-size: 26px; }
         .section-title { font-size: 18px; }
         .section-title::before { width: 36px; height: 36px; font-size: 18px; }
-        .demand-table thead th, .demand-table tbody td { 
-            padding: 12px 16px; 
-            font-size: 13px; 
-        }
+        .demand-table thead th, .demand-table tbody td { padding: 12px 16px; font-size: 13px; }
         .table-scroll-container { max-height: 350px; }
         .action-bar { flex-direction: column; gap: 12px; }
     }
@@ -255,30 +201,30 @@
         <p>Home / Stock Activities / Demand Predictions</p>
     </div>
 
-    <!-- Refresh Button -->
-    <form method="GET" action="{{ route('demand.predict') }}" class="action-bar">
-        <button type="submit" class="refresh-btn">
-            <span>🔄</span>
-            <span>Refresh Predictions</span>
+    <!-- Buttons -->
+    <div class="action-bar">
+        <form method="GET" action="{{ route('demand.predict') }}">
+            <button type="submit" class="refresh-btn">
+                <span>🔄</span>
+                <span>Refresh Predictions</span>
+            </button>
+        </form>
+
+        <button type="button" class="refresh-btn" id="exportBtn">
+            <span>📥</span>
+            <span>Export to Excel</span>
         </button>
-    </form>
+    </div>
+
+    <!-- Search -->
     <div style="margin-bottom: 24px;">
         <input 
             type="text" 
             id="searchInput" 
             placeholder="Search stock name..."
-            style="
-                width: 100%;
-                padding: 12px 16px;
-                border-radius: 10px;
-                border: 1px solid #e2e8f0;
-                font-size: 14px;
-                outline: none;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-            "
+            style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.05);"
             onkeyup="filterTables()">
     </div>
-
 
     @php
         $demandLevels = [
@@ -327,7 +273,11 @@
         </div>
     @endforeach
 </div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
+    // Filter tables
     function filterTables() {
         const input = document.getElementById("searchInput").value.toLowerCase();
         const tables = document.querySelectorAll(".demand-table");
@@ -346,13 +296,27 @@
                 }
             });
 
-            // Hide entire section if no rows match
             const section = table.closest(".demand-section");
             if (section) {
                 section.style.display = hasVisibleRow ? "block" : "none";
             }
         });
     }
-</script>
 
+    // Export to Excel
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        const wb = XLSX.utils.book_new();
+
+        document.querySelectorAll('.demand-table').forEach((table) => {
+            const rows = table.querySelectorAll('tbody tr');
+            if (rows.length === 0) return; // skip empty tables
+
+            const ws = XLSX.utils.table_to_sheet(table, {raw: true});
+            const level = table.closest('.demand-section').querySelector('.section-title').textContent.trim();
+            XLSX.utils.book_append_sheet(wb, ws, level);
+        });
+
+        XLSX.writeFile(wb, 'Stock_Demand_Predictions.xlsx');
+    });
+</script>
 @endsection

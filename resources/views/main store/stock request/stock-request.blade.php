@@ -8,6 +8,9 @@
         <h2>Stock Request</h2>
         <p>Home / Stock Request - Request List</p>
     </div>
+        <div class="report-menu" style="display: flex; flex-direction: column; gap: 20px; margin-top: 24px; margin-bottom: 30px;">
+        <a href="{{ route('reports.stock-request.list') }}" style="padding: 15px; background-color: #f0f0f0; border-radius: 8px; text-decoration: none; color: #000;">Stock Request Report</a>
+    </div>
 
     <!-- Search Bar -->
     <form method="GET" action="{{ route('stock-request.pending') }}" class="search-bar-form">
