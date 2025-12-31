@@ -9,6 +9,8 @@
         --primary-navy: #1e3a5f;
         --primary-blue: #2563eb;
         --accent-teal: #0891b2;
+        --primary-green: #16a34a;
+        --accent-green: #4ade80;
         --bg-light: #f8fafc;
         --bg-white: #ffffff;
         --text-primary: #1e293b;
@@ -21,7 +23,7 @@
 
     .main { background: var(--bg-light); min-height: 100vh; padding: 32px; }
 
-    /* Fix white background behind buttons */
+    /* Action bar */
     .action-bar {
         margin-bottom: 40px;
         background: transparent !important;
@@ -30,8 +32,10 @@
         border: none !important;
         display: flex;
         gap: 12px;
+        flex-wrap: wrap;
     }
 
+    /* Refresh button */
     .refresh-btn { 
         padding: 12px 28px; 
         background: linear-gradient(135deg, var(--primary-blue) 0%, var(--accent-teal) 100%);
@@ -56,6 +60,33 @@
     .refresh-btn:active {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Export button */
+    #exportBtn {
+        padding: 12px 28px; 
+        background: linear-gradient(135deg, var(--primary-green) 0%, var(--accent-green) 100%);
+        color: white; 
+        border: none; 
+        border-radius: 10px; 
+        cursor: pointer; 
+        font-weight: 700; 
+        font-size: 14px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        letter-spacing: 0.3px;
+    }
+    #exportBtn:hover { 
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+        background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
+    }
+    #exportBtn:active {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
     }
 
     /* Demand Section Cards */
@@ -210,7 +241,7 @@
             </button>
         </form>
 
-        <button type="button" class="refresh-btn" id="exportBtn">
+        <button type="button" id="exportBtn">
             <span>📥</span>
             <span>Export to Excel</span>
         </button>
@@ -277,7 +308,6 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script>
-    // Filter tables
     function filterTables() {
         const input = document.getElementById("searchInput").value.toLowerCase();
         const tables = document.querySelectorAll(".demand-table");
@@ -309,7 +339,7 @@
 
         document.querySelectorAll('.demand-table').forEach((table) => {
             const rows = table.querySelectorAll('tbody tr');
-            if (rows.length === 0) return; // skip empty tables
+            if (rows.length === 0) return;
 
             const ws = XLSX.utils.table_to_sheet(table, {raw: true});
             const level = table.closest('.demand-section').querySelector('.section-title').textContent.trim();
