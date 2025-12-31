@@ -60,9 +60,6 @@
     </div>
 
     <!--a href="#">Stock Adjustment</a-->
-    <a href="{{ route('reports.index') }}">
-        <i class="fas fa-chart-bar"></i> Reports
-    </a>
 
     <div class="logout-btn">
         <a href="{{ route('logout') }}">
