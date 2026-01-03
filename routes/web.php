@@ -136,6 +136,9 @@ Route::get('/main-store/item/{item}/edit', [ItemController::class, 'edit'])->nam
 Route::put('/main-store/item/{item}/update', [ItemController::class, 'update'])->name('items.update');
 //delete item from the list
 Route::delete('/main-store/item/{item}/delete', [ItemController::class, 'destroy'])->name('items.delete');
+// Item Transaction Log
+Route::get('/items/{item}/transaction-log', [ItemController::class, 'transactionLog'])->name('items.transaction-log');
+
 
 
 // Stock Transfer In (GET)

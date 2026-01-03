@@ -46,7 +46,7 @@ class StockReceive extends Controller
 
             // Save to ReceiveNote
             $note = ReceiveNote::create([
-                'grn_received_by' => session('loggedUser')->u_username ?? 'system',
+                'grn_received_by' => session('loggedUser')->u_name ?? 'system',
                 'item_id' => $item->item_id,
                 'grn_quantity_received' => $quantityReceived,
                 'grn_available_qty' => $quantityReceived, // nak makesure quantity available sama dengan received

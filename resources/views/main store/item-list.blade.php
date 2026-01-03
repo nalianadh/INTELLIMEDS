@@ -58,6 +58,9 @@
                                 <a href="{{ route('items.view', ['item' => $item->item_id]) }}" class="btn-action btn-view">
                                     <i class="fas fa-eye"></i> 
                                 </a>
+                                <a href="{{ route('items.transaction-log', ['item' => $item->item_id]) }}" class="btn-action btn-log">
+                                    <i class="fas fa-history"></i>
+                                </a>
                                 <a href="{{ route('items.edit', ['item' => $item->item_id]) }}" class="btn-action btn-edit">
                                     <i class="fas fa-edit"></i>
                                 </a>
@@ -90,10 +93,9 @@
                 @endforelse
             </tbody>
         </table>
-        <a href="{{ route('items.sync') }}" class="btn btn-secondary mb-3">
+        <a href="{{ route('items.sync') }}" class="btn-action btn-view" style="margin-bottom: 20px; margin-left: 10px;">
             Sync Items from Dataset
         </a>
-
     </div>
 
     <!-- Pagination -->
@@ -253,6 +255,19 @@
         box-shadow: 0 4px 8px rgba(15, 62, 89, 0.2);
     }
 
+    /* Log Button - Icon Only */
+    .btn-log {
+        background: #17a2b8;
+        min-width: 40px;
+        padding: 8px 12px;
+    }
+
+    .btn-log:hover {
+        background: #138496;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(23, 162, 184, 0.2);
+    }
+
     /* Edit Button - Icon Only */
     .btn-edit {
         background: #28a745;
@@ -274,9 +289,9 @@
     }
 
     .btn-delete:hover {
-        background: #ea0101ff;
+        background: #c82333;
         transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(15, 62, 89, 0.2);
+        box-shadow: 0 4px 8px rgba(220, 53, 69, 0.2);
     }
 
     .btn-action:active {
@@ -313,6 +328,7 @@
             min-width: 70px;
         }
 
+        .btn-log,
         .btn-edit,
         .btn-delete {
             min-width: 36px;

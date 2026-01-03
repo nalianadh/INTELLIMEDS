@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Item;
+use App\Models\TransactionLog;
 use Illuminate\Support\Facades\DB;
 
 class ItemController extends Controller
@@ -171,6 +172,13 @@ class ItemController extends Controller
         return redirect()->back()->with('success', 'Items synced successfully!');
     }
 
+    public function transactionLog($itemId)
+    {
+        $item = Item::findOrFail($itemId);
+        $transactions = TransactionLog::getItemTransactions($itemId);
+
+        return view('main store.item-transaction-log', compact('item', 'transactions'));
+    }
 
 
 
