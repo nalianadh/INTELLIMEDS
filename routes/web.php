@@ -202,7 +202,7 @@ Route::post('/sub-department/inbox/{id}/reject', [Inbox::class, 'reject'])->name
 Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
 Route::get('/reports/supply-transaction', [ReportController::class, 'supplyTransaction'])->name('reports.supply-transaction');
 Route::get('/reports/stock-request/list', [ReportController::class, 'SRlist'])->name('reports.stock-request.list');
-Route::get('/reports/stock-request/view/{id}', [ReportController::class, 'showStockRequestSlip'])->name('reports.stock-request.view');
+Route::get('/reports/stock-request/view/{date}', [ReportController::class, 'showStockRequestSlip'])->name('reports.stock-request.view');
 
 // DEMAND – Predict ALL stocks
 Route::get('/predict-all-demand', [DemandController::class, 'predict'])->name('demand.predict');

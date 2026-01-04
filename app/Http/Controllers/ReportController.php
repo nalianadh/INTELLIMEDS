@@ -48,23 +48,35 @@ class ReportController extends Controller
     {
         $search = $request->search;
 
-        $requests = StockRequest::when($search, function ($query) use ($search) {
-            $query->where('rq_requested_by', 'like', '%' . $search . '%');
-        })
-        ->orderBy('rq_date_requested', 'desc')
-        ->paginate(15);
+        $query = StockRequest::with(['user', 'item'])
+            ->when($search, function ($query) use ($search) {
+                $query->whereDate('rq_date_requested', $search);
+            })
+            ->orderBy('rq_date_requested', 'desc');
 
-        return view('main store.report.SR.report-stock-request', compact('requests'));
+        // Get all results
+        $allRequests = $query->get();
+
+        // Group by date
+        $groupedRequests = $allRequests->groupBy(function($item) {
+            return \Carbon\Carbon::parse($item->rq_date_requested)->format('Y-m-d');
+        });
+
+        return view('main store.report.SR.report-stock-request', compact('groupedRequests', 'search'));
     }
-
-    public function showStockRequestSlip($id)
+    
+    public function showStockRequestSlip($date)
     {
-        // FIX: Changed eager load from 'item' (singular) to 'items' (plural)
-        $stockRequest = StockRequest::with(['requestedBy', 'item']) 
-            ->where('request_id', $id)
-            ->firstOrFail();
+        // Fetch all stock requests for the given date
+        $stockRequests = StockRequest::with(['requestedBy', 'item', 'approvedByUser'])
+            ->whereDate('rq_date_requested', $date)
+            ->get();
 
-        return view('main store.report.SR.report-sr-view', compact('stockRequest'));
+        if ($stockRequests->isEmpty()) {
+            abort(404, 'No stock requests found for this date.');
+        }
+
+        return view('main store.report.SR.report-sr-view', compact('stockRequests', 'date'));
     }
 
 
