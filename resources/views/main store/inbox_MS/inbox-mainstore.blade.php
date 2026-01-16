@@ -84,7 +84,6 @@ confirmButtonText: 'OK'
                                         style="color:#226699; font-weight:600; text-decoration:none;">
                                         click here for more action
                                     </a>
-
                                 {{-- 💡 NEW: Handle stock requests --}}
                                 @elseif($msg['type'] === 'request')
                                     Your request (ID: <strong>{{ $msg['id'] }}</strong>) 
