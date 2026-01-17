@@ -397,7 +397,7 @@
 
         <!-- TOP HIGH DEMAND -->
         <div class="summary">
-            <h3>Top 5 High Demand Items</h3>
+            <h3>Top 5 High Demand Supplied Items (Prev.Month)</h3>
             <canvas id="topDemandChart" height="200"></canvas>
         </div>
 
@@ -477,45 +477,59 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-/* DEMAND DISTRIBUTION */
-const demandCtx = document.getElementById('demandChart');
-new Chart(demandCtx, {
-    type: 'doughnut',
-    data: {
-        labels: {!! json_encode(array_keys($demandStats ?? [])) !!},
-        datasets: [{
-            data: {!! json_encode(array_values($demandStats ?? [])) !!}
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'bottom' }
-        }
-    }
-});
-
-/* TOP HIGH DEMAND */
-const topCtx = document.getElementById('topDemandChart');
-new Chart(topCtx, {
-    type: 'bar',
-    data: {
-        labels: {!! json_encode(collect($topHighDemand ?? [])->pluck('stock')) !!},
-        datasets: [{
-            label: 'Total Quantity',
-            data: {!! json_encode(collect($topHighDemand ?? [])->pluck('total_quantity')) !!}
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { display: false }
+    /* DEMAND DISTRIBUTION */
+    const demandCtx = document.getElementById('demandChart');
+    new Chart(demandCtx, {
+        type: 'doughnut',
+        data: {
+            labels: {!! json_encode(array_keys($demandStats ?? [])) !!},
+            datasets: [{
+                data: {!! json_encode(array_values($demandStats ?? [])) !!}
+            }]
         },
-        scales: {
-            y: { beginAtZero: true }
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
         }
-    }
-});
+    });
+
+    /* TOP HIGH DEMAND */
+    const topCtx = document.getElementById('topDemandChart');
+
+    new Chart(topCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5'],
+            datasets: [{
+                label: 'Total Quantity',
+                data: {!! json_encode(collect($topHighDemand ?? [])->pluck('total_quantity')) !!}
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const names = {!! json_encode(collect($topHighDemand ?? [])->pluck('stock')) !!};
+                            return names[context.dataIndex] + ': ' + context.raw;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { display: false } // 🔥 hide long names
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 </script>
 
 @endsection
