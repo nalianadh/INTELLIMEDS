@@ -346,14 +346,16 @@
 
 @section('content')
 <div class="main">
+
+    <!-- HEADER -->
     <div class="header">
         <h2>Welcome to INTELLIMEDS</h2>
         <p>Home / Dashboard</p>
     </div>
 
+    <!-- KPI CARDS -->
     <div class="cards">
 
-        <!-- TOTAL ITEMS -->
         <a href="{{ route('items.list') }}" class="card-link">
             <div class="card">
                 <h4>TOTAL STOCK</h4>
@@ -362,7 +364,6 @@
             </div>
         </a>
 
-        <!-- STOCK TRANSFERRED -->
         <a href="{{ route('stock.transfer.list') }}" class="card-link">
             <div class="card">
                 <h4>STOCK TRANSFERRED</h4>
@@ -371,29 +372,40 @@
             </div>
         </a>
 
-        <!-- LOW STOCK ITEMS -->
-        <a href="#" class="card-link">
-            <div class="card">
-                <h4>LOW STOCK ITEMS</h4>
-                <h2 style="color: #fb8c00;">{{ $lowStockItems ?? '--' }}</h2>
-                <p>Items</p>
-            </div>
-        </a>
+        <div class="card">
+            <h4>LOW STOCK ITEMS</h4>
+            <h2 style="color:#fb8c00">{{ $lowStockItems ?? '--' }}</h2>
+            <p>Items</p>
+        </div>
 
-        <!-- EXPIRED ITEMS -->
-        <a href="#" class="card-link">
-            <div class="card">
-                <h4>EXPIRED ITEMS</h4>
-                <h2 style="color: #e53935;">{{ $expiredCount ?? '--' }}</h2>
-                <p>Total Expired</p>
-            </div>
-        </a>
+        <div class="card">
+            <h4>EXPIRED ITEMS</h4>
+            <h2 style="color:#e53935">{{ $expiredCount ?? '--' }}</h2>
+            <p>Total Expired</p>
+        </div>
 
     </div>
 
-    <div class="alerts" style="flex:1; margin-top:40px;">
-    <h3>Low Stock Items</h3>
+    <!-- ================= DEMAND VISUALIZATION ================= -->
+    <div class="summary-alerts" style="margin-top:40px;">
 
+        <!-- DEMAND DISTRIBUTION -->
+        <div class="summary">
+            <h3>Stock Demand Distribution</h3>
+            <canvas id="demandChart" height="200"></canvas>
+        </div>
+
+        <!-- TOP HIGH DEMAND -->
+        <div class="summary">
+            <h3>Top 5 High Demand Items</h3>
+            <canvas id="topDemandChart" height="200"></canvas>
+        </div>
+
+    </div>
+
+    <!-- LOW STOCK TABLE -->
+    <div class="alerts" style="margin-top:40px;">
+        <h3>Low Stock Items</h3>
         <div class="table-scroll">
             <table>
                 <thead>
@@ -409,14 +421,12 @@
                     <tr>
                         <td>{{ $item->i_name }}</td>
                         <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
-                        <td style="color:#e53935; font-weight:600;">
-                            {{ $item->quantity_in_stock }}
-                        </td>
+                        <td style="color:#e53935;font-weight:600">{{ $item->quantity_in_stock }}</td>
                         <td>{{ $item->i_minLevel }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" style="text-align:center; color:#7f8c9a; padding:30px;">
+                        <td colspan="4" style="text-align:center;color:#7f8c9a;padding:30px;">
                             No low stock items.
                         </td>
                     </tr>
@@ -426,39 +436,86 @@
         </div>
     </div>
 
-<div class="summary-alerts" style="margin-top:40px;">
-    <div class="alerts" style="flex:1;">
-        <h3>List of Expired Items</h3>
-
-        <div class="table-scroll">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item Name</th>
-                        <th>Stock ID</th>
-                        <th>Batch Number</th>
-                        <th>Expiry Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($expiredItems ?? [] as $item)
-                    <tr>
-                        <td>{{ $item->i_name }}</td>
-                        <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
-                        <td>{{ $item->grn_itemBatchNumber }}</td>
-                        <td>{{ $item->grn_itemExpiredDate }}</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" style="text-align: center; color: #7f8c9a; padding: 30px;">No expired items.</td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+    <!-- EXPIRED ITEMS -->
+    <div class="summary-alerts" style="margin-top:40px;">
+        <div class="alerts">
+            <h3>List of Expired Items</h3>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Stock ID</th>
+                            <th>Batch Number</th>
+                            <th>Expiry Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($expiredItems ?? [] as $item)
+                        <tr>
+                            <td>{{ $item->i_name }}</td>
+                            <td><span class="status-badge status-expired">{{ $item->i_stockID }}</span></td>
+                            <td>{{ $item->grn_itemBatchNumber }}</td>
+                            <td>{{ $item->grn_itemExpiredDate }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" style="text-align:center;color:#7f8c9a;padding:30px;">
+                                No expired items.
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
-
     </div>
-</div>
 
 </div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* DEMAND DISTRIBUTION */
+const demandCtx = document.getElementById('demandChart');
+new Chart(demandCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {!! json_encode(array_keys($demandStats ?? [])) !!},
+        datasets: [{
+            data: {!! json_encode(array_values($demandStats ?? [])) !!}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+});
+
+/* TOP HIGH DEMAND */
+const topCtx = document.getElementById('topDemandChart');
+new Chart(topCtx, {
+    type: 'bar',
+    data: {
+        labels: {!! json_encode(collect($topHighDemand ?? [])->pluck('stock')) !!},
+        datasets: [{
+            label: 'Total Quantity',
+            data: {!! json_encode(collect($topHighDemand ?? [])->pluck('total_quantity')) !!}
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+
 @endsection

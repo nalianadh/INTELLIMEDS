@@ -13,7 +13,12 @@
     <div class="table-container">
         <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
             <h3>Transaction Logs</h3>
-            <span class="item-count">{{ $transactions->count() }} transactions</span>
+            <div class="header-actions">
+                <span class="item-count">{{ $transactions->count() }} transactions</span>
+                <a href="{{ route('items.view', ['item' => $item->item_id]) }}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Item
+                </a>
+            </div>
         </div>
         
         <table style="width: 100%; border-collapse: collapse;">
@@ -94,6 +99,39 @@
 </div>
 
 <style>
+/* Header Actions */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Back Button */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #6c757d;
+    color: #ffffff;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-back:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.2);
+}
+
+.btn-back i {
+    font-size: 12px;
+}
+
 /* Table Container */
 .table-container {
     background: #ffffff;
@@ -101,6 +139,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     border: 1px solid #e9ecef;
     overflow: hidden;
+    margin-top: 20px;
 }
 
 /* Table Header */
@@ -246,6 +285,33 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .table-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 12px;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .item-count {
+        width: 100%;
+        text-align: center;
+    }
+
+    .btn-back {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table-container {
+        margin-top: 16px;
+    }
+
     .table-container table th,
     .table-container table td {
         padding: 10px 12px;
@@ -267,6 +333,12 @@
     .qty-divider {
         display: none;
     }
+}
+
+/* Focus visible for accessibility */
+.btn-back:focus-visible {
+    outline: 2px solid #0f3e59;
+    outline-offset: 2px;
 }
 </style>
 @endsection

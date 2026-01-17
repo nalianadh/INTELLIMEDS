@@ -120,6 +120,14 @@ class DemandController extends Controller
             }
         }
 
+        session([
+            'demand_high'      => $grouped['High'],
+            'demand_mid_high'  => $grouped['Mid High'],
+            'demand_medium'    => $grouped['Medium'],
+            'demand_mid_low'   => $grouped['Mid Low'],
+            'demand_low'       => $grouped['Low'],
+            'demand_others'    => $grouped['Others'],
+        ]);
         // -------------------------------------------------------
         // 10. RETURN TO VIEW
         // -------------------------------------------------------

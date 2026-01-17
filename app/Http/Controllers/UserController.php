@@ -24,7 +24,7 @@ class UserController extends Controller
             return redirect('/login');
         }
 
-        // EXPIRED SOON (within 180 days)
+        // EXPIRED SOON (within 180 days - 6 months)
         $expiredItems = ReceiveNote::select(
                 'receive_notes.*',
                 'items.i_name',
@@ -51,8 +51,31 @@ class UserController extends Controller
         ->orderBy('i_quantity_in_stock', 'asc')
         ->get();
 
-    
+      //graph visual
 
+        $high       = session('demand_high', []);
+        $mid_high  = session('demand_mid_high', []);
+        $medium    = session('demand_medium', []);
+        $mid_low   = session('demand_mid_low', []);
+        $low       = session('demand_low', []);
+        $others    = session('demand_others', []);
+
+        /* Demand Distribution */
+        $demandStats = [
+            'High Demand'     => count($high),
+            'Mid-High Demand' => count($mid_high),
+            'Medium Demand'   => count($medium),
+            'Mid-Low Demand'  => count($mid_low),
+            'Low Demand'      => count($low),
+            'Others'          => count($others),
+        ];
+
+        /* Top High Demand Items (Top 5) */
+        $topHighDemand = collect($high)
+            ->sortByDesc('total_quantity')
+            ->take(5)
+            ->values();
+        
         return view('main store.dashboard', compact(
             'user',
             'expiredItems',
@@ -60,7 +83,9 @@ class UserController extends Controller
             'stockReceived',
             'stockTransferred',
             'lowStockItems',
-            'lowStockList'
+            'lowStockList',
+            'demandStats',
+            'topHighDemand'
         
         ));
     }
