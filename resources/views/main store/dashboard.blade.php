@@ -402,6 +402,13 @@
         </div>
 
     </div>
+    <!-- ================= STOCK SUMMARY (HORIZONTAL BAR) ================= -->
+    <div class="summary-alerts" style="margin-top:40px;">
+        <div class="summary">
+            <h3>Stock Summary Overview</h3>
+            <canvas id="stockSummaryChart" height="180"></canvas>
+        </div>
+    </div>
 
     <!-- LOW STOCK TABLE -->
     <div class="alerts" style="margin-top:40px;">
@@ -530,6 +537,116 @@
             }
         }
     });
+
+    /*Horizontal Bar - STOCK SUMMARY OVERVIEW with Enhanced Styling*/
+    const stockSummaryCtx = document.getElementById('stockSummaryChart');
+
+    new Chart(stockSummaryCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Total Stock', 'Healthy Stock', 'Expired Stock'],
+            datasets: [{
+                data: [
+                    {{ $totalStock ?? 0 }},
+                    {{ $healthyStock ?? 0 }},
+                    {{ $expiredStockQty ?? 0 }}
+                ],
+                backgroundColor: [
+                    'rgba(33, 150, 243, 0.8)',   // Blue for Total Stock
+                    'rgba(102, 187, 106, 0.8)',  // Green for Healthy Stock
+                    'rgba(239, 83, 80, 0.8)'     // Red for Expired Stock
+                ],
+                borderColor: [
+                    'rgba(33, 150, 243, 1)',
+                    'rgba(102, 187, 106, 1)',
+                    'rgba(239, 83, 80, 1)'
+                ],
+                borderWidth: 2,
+                borderRadius: 12,
+                barPercentage: 0.6,
+                categoryPercentage: 0.7
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { 
+                    display: false 
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: {
+                        size: 14,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        size: 13
+                    },
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    displayColors: true,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.raw.toLocaleString() + ' units';
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    grid: {
+                        display: true,
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        precision: 0,
+                        font: {
+                            size: 12,
+                            weight: '500'
+                        },
+                        color: '#7f8c9a',
+                        padding: 8
+                    },
+                    border: {
+                        display: false
+                    }
+                },
+                y: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        },
+                        color: '#0f3e59',
+                        padding: 12
+                    },
+                    border: {
+                        display: false
+                    }
+                }
+            },
+            layout: {
+                padding: {
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
 </script>
 
 @endsection

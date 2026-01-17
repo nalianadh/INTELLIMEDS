@@ -75,6 +75,13 @@ class UserController extends Controller
             ->sortByDesc('total_quantity')
             ->take(5)
             ->values();
+
+        $totalStock = Item::sum('i_quantity_in_stock');
+        $expiredStockQty = ReceiveNote::whereNotNull('grn_itemExpiredDate')
+        ->where('grn_itemExpiredDate', '<=', now())
+        ->sum('grn_available_qty');
+        $healthyStock = max($totalStock - $expiredStockQty, 0);
+
         
         return view('main store.dashboard', compact(
             'user',
@@ -85,7 +92,10 @@ class UserController extends Controller
             'lowStockItems',
             'lowStockList',
             'demandStats',
-            'topHighDemand'
+            'topHighDemand',
+            'totalStock',
+            'expiredStockQty',
+            'healthyStock'
         
         ));
     }
