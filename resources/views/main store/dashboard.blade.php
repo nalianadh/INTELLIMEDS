@@ -177,6 +177,65 @@
             border-bottom: 2px solid #e0e6ed;
         }
 
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h3 {
+            margin: 0;
+            font-size: 20px;
+            color: #0f3e59;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #4fc3f7 0%, #2196f3 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 195, 247, 0.4);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .refresh-btn.spinning {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .refresh-btn svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.6s ease;
+        }
+
+        .refresh-btn.spinning svg {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
         .chart-placeholder {
             height: 200px;
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -337,6 +396,12 @@
                 });
             }
         });
+
+        function refreshPage() {
+            const btn = document.querySelector('.refresh-btn');
+            btn.classList.add('spinning');
+            window.location.href = "{{ route('demand.predict') }}";
+        }
     </script>
 </body>
 </html>
@@ -391,7 +456,14 @@
 
         <!-- DEMAND DISTRIBUTION -->
         <div class="summary">
-            <h3>Stock Demand Distribution</h3>
+            <div class="section-header">
+                <h3>Stock Demand Distribution</h3>
+                <button class="refresh-btn" onclick="refreshPage()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                    </svg>
+                </button>
+            </div>
             <canvas id="demandChart" height="200"></canvas>
         </div>
 
@@ -406,7 +478,7 @@
     <div class="summary-alerts" style="margin-top:40px;">
         <div class="summary">
             <h3>Stock Summary Overview</h3>
-            <canvas id="stockSummaryChart" height="180"></canvas>
+            <canvas id="stockSummaryChart" height="120"></canvas>
         </div>
     </div>
 
