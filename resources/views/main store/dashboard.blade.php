@@ -469,7 +469,7 @@
 
         <!-- TOP HIGH DEMAND -->
         <div class="summary">
-            <h3>Top 5 High Demand Supplied Items (Prev.Month)</h3>
+            <h3>Top 5 Fast Moving Items (Prev.Month)</h3>
             <canvas id="topDemandChart" height="200"></canvas>
         </div>
 
