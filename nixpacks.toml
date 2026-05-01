@@ -6,7 +6,8 @@ nixPkgs = [
   "python311Packages.pip",
   "nodejs_20",
   "nodePackages.npm",
-  "gcc-unwrapped"
+  "gcc-unwrapped",
+  "stdenv.cc.cc.lib"
 ]
 
 [phases.install]
