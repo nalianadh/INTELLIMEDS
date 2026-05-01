@@ -23,10 +23,20 @@ with open("label_mapping.pkl", "rb") as f:
 # ================================================================
 # 3. DATABASE CONNECTION
 # ================================================================
-DB_USERNAME = "root"
-DB_PASSWORD = "Alia160203@2"
-DB_HOST = "127.0.0.1"
-DB_NAME = "fyp_projectdb"
+#DB_USERNAME = "root"
+#DB_PASSWORD = "Alia160203@2"
+#DB_HOST = "127.0.0.1"
+#DB_NAME = "fyp_projectdb"
+
+#engine = create_engine(
+    #f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+#)
+import os
+
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
 
 engine = create_engine(
     f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
