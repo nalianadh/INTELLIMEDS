@@ -6,14 +6,18 @@ nixPkgs = [
   "python311Packages.pip",
   "nodejs_20",
   "nodePackages.npm",
+
+  # 🔥 REQUIRED for ML libs
   "gcc-unwrapped",
+  "gfortran",
+  "openblas",
+  "pkg-config",
   "stdenv.cc.cc.lib"
 ]
 
 [phases.install]
 cmds = [
-  "python -m venv .venv",
-  ". .venv/bin/activate",
+  "pip install --upgrade pip setuptools wheel",
   "pip install -r requirements.txt",
   "composer install --no-dev --optimize-autoloader",
   "npm ci"
