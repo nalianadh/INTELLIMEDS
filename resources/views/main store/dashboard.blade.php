@@ -518,9 +518,15 @@
     <!-- EXPIRED ITEMS -->
     <div class="summary-alerts" style="margin-top:40px;">
         <div class="alerts">
+        <div class="section-header">
             <h3>List of Expired Items</h3>
+            <button id="exportExpiredBtn" class="refresh-btn">
+                📥 Export Excel
+            </button>
+        </div>
+
             <div class="table-scroll">
-                <table>
+                <table id="expiredTable">
                     <thead>
                         <tr>
                             <th>Item Name</th>
@@ -553,6 +559,7 @@
 </div>
 
 <!-- ================= SCRIPTS ================= -->
+ <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -717,6 +724,33 @@
                 easing: 'easeInOutQuart'
             }
         }
+    });
+    
+    // Export Expired Items to Excel
+    document.getElementById('exportExpiredBtn').addEventListener('click', function () {
+
+        const table = document.getElementById('expiredTable');
+
+        if (!table) return;
+
+        const rows = table.querySelectorAll("tbody tr");
+
+        if (rows.length === 0 || rows[0].innerText.includes("No expired items")) {
+            Swal.fire({
+                icon: 'info',
+                title: 'No Data',
+                text: 'There are no expired items to export.',
+                confirmButtonColor: '#0f3e59'
+            });
+            return;
+        }
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(table, { raw: true });
+
+        XLSX.utils.book_append_sheet(wb, ws, "Expired Items");
+
+        XLSX.writeFile(wb, 'Expired_Items_Report.xlsx');
     });
 
 </script>

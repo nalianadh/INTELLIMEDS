@@ -224,6 +224,21 @@
         .table-scroll-container { max-height: 350px; }
         .action-bar { flex-direction: column; gap: 12px; }
     }
+    .spinner {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto;
+        border: 6px solid #e2e8f0;
+        border-top: 6px solid #2563eb;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
 </style>
 
 <div class="main">
@@ -231,6 +246,7 @@
         <h2>Stock Activities Dashboard</h2>
         <p>Home / Stock Activities / Demand Predictions</p>
     </div>
+
 
     <!-- Buttons -->
     <div class="action-bar">
@@ -256,7 +272,9 @@
             style="width: 100%; padding: 12px 16px; border-radius: 10px; border: 1px solid #e2e8f0; font-size: 14px; outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.05);"
             onkeyup="filterTables()">
     </div>
-
+    <div style="margin-bottom: 20px; color: #64748b; font-size: 14px;">
+    Last Updated: {{ now()->format('d M Y, h:i A') }}
+    </div>
     @php
         $demandLevels = [
             'High Demand'      => 'high',
@@ -285,7 +303,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($items as $item)
+                        @foreach(collect($items)->take(10) as $item)
                         <tr>
                             <td><strong>{{ $item['stock'] }}</strong></td>
                             <td>{{ number_format($item['total_quantity']) }}</td>
@@ -304,6 +322,48 @@
         </div>
     @endforeach
 </div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" style="
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+">
+    <div style="
+        background: #ffffff;
+        padding: 40px 50px;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        text-align: center;
+        min-width: 320px;
+    ">
+        <!-- Spinner -->
+        <div class="spinner"></div>
+
+        <div style="
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 16px;
+            color: #1e293b;
+        ">
+            Be patient, we are processing the data...
+        </div>
+
+        <div style="
+            margin-top: 8px;
+            font-size: 13px;
+            color: #64748b;
+        ">
+            Running prediction model...
+        </div>
+    </div>
+</div>
+
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
@@ -348,5 +408,11 @@
 
         XLSX.writeFile(wb, 'Stock_Demand_Predictions.xlsx');
     });
+
+    document.querySelector('form[action="{{ route('demand.predict') }}"]')
+        .addEventListener('submit', function() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+    });
+
 </script>
 @endsection
