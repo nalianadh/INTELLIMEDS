@@ -105,7 +105,7 @@ confirmButtonText: 'OK'
                             
                             {{-- 💡 NEW: Ensure date is properly formatted, $msg['date'] is a Carbon instance --}}
                             <td class="gmail-date">
-                                {{ $msg['date'] ? $msg['date']->format('Y-m-d H:i:s') : 'N/A' }}
+                                {{ $msg['date'] ? \Carbon\Carbon::parse($msg['date'])->format('Y-m-d H:i:s') : 'N/A' }}
                             </td>
                             
                             <td style="text-align: center;">
