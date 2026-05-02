@@ -48,17 +48,9 @@ Route::get('/login', function () {
 
 //test for RAILWAY
 Route::post('/login', function (Request $request) {
-    try {
-        \DB::connection()->getPdo();
-        \Log::info('DB Connected successfully');
-        
-        $userRaw = \DB::select("SELECT * FROM users WHERE u_username = ?", [$request->username]);
-        \Log::info('Raw query result count: ' . count($userRaw));
-        \Log::info('Raw result: ' . json_encode($userRaw));
-    } catch (\Exception $e) {
-        \Log::error('DB Connection failed: ' . $e->getMessage());
-    }
-
+    $result = \DB::select("SELECT DATABASE() as db, COUNT(*) as cnt FROM users");
+    \Log::info('Actual DB and count: ' . json_encode($result));
+    
     $user = User::where('u_username', $request->username)->first();
     \Log::info('User found: ' . ($user ? 'yes' : 'no'));
 
