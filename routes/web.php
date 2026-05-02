@@ -51,7 +51,10 @@ Route::post('/login', function (Request $request) {
     $result = \DB::select("SELECT DATABASE() as db, COUNT(*) as cnt FROM users");
     \Log::info('Actual DB and count: ' . json_encode($result));
     
+    \DB::enableQueryLog();
     $user = User::where('u_username', $request->username)->first();
+    $queries = \DB::getQueryLog();
+    \Log::info('Query log: ' . json_encode($queries));
     \Log::info('User found: ' . ($user ? 'yes' : 'no'));
 
     if (!$user || !Hash::check($request->password, $user->u_password)) {
