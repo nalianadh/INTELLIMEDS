@@ -67,7 +67,8 @@ class DemandController extends Controller
 
             // 7. Send to FastAPI
             try {
-                $response = Http::timeout(10)->post('http://127.0.0.1:8000/predict', $payload);
+                dd(Http::get('http://127.0.0.1:8001')->body());
+                $response = Http::timeout(10)->post('http://127.0.0.1:8001/predict', $payload);
 
                 if ($response->successful()) {
                     $predictionRaw = $response->json()['predicted_demand'] ?? "Unknown";
