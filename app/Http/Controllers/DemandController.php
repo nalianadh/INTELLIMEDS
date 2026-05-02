@@ -69,6 +69,7 @@ class DemandController extends Controller
             try {
                 dd(Http::get('http://127.0.0.1:8001')->body());
                 $response = Http::timeout(10)->post('http://127.0.0.1:8001/predict', $payload);
+                dd($response->body(), $response->status());
 
                 if ($response->successful()) {
                     $predictionRaw = $response->json()['predicted_demand'] ?? "Unknown";
