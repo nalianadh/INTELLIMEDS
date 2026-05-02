@@ -26,7 +26,7 @@ Route::get('/login', function () {
 });
 
 // Handle login form submission
-Route::post('/login', function (Request $request) {
+/*Route::post('/login', function (Request $request) {
     $user = User::where('u_username', $request->username)->first();
 
     if (!$user || !Hash::check($request->password, $user->u_password)) {
@@ -37,6 +37,32 @@ Route::post('/login', function (Request $request) {
     session(['loggedUser' => $user]);
 
     // Redirect based on role
+    if ($user->u_role === 'main_store') {
+        return redirect()->route('mainstore.dashboard');
+    } elseif ($user->u_role === 'sub_department') {
+        return redirect()->route('subdept.dashboard');
+    } else {
+        return back()->with('error', 'Unauthorized user role.');
+    }
+})->name('customLogin');*/
+
+//test for RAILWAY
+Route::post('/login', function (Request $request) {
+    \Log::info('DB Host: ' . config('database.connections.mysql.host'));
+    \Log::info('DB Name: ' . config('database.connections.mysql.database'));
+    
+    $user = User::where('u_username', $request->username)->first();
+    
+    \Log::info('User found: ' . ($user ? 'yes' : 'no'));
+    \Log::info('Username input: ' . $request->username);
+    
+    if (!$user || !Hash::check($request->password, $user->u_password)) {
+        \Log::info('Hash check: ' . ($user ? Hash::check($request->password, $user->u_password) : 'no user'));
+        return back()->with('error', 'Invalid username or password.');
+    }
+
+    session(['loggedUser' => $user]);
+
     if ($user->u_role === 'main_store') {
         return redirect()->route('mainstore.dashboard');
     } elseif ($user->u_role === 'sub_department') {
