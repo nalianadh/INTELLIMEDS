@@ -48,27 +48,26 @@ Route::get('/login', function () {
 
 //test for RAILWAY
 Route::post('/login', function (Request $request) {
-    \Log::info('DB Host: ' . config('database.connections.mysql.host'));
-    \Log::info('DB Name: ' . config('database.connections.mysql.database'));
-    \Log::info('Table: ' . (new \App\Models\User())->getTable());
-    
-    // Try raw DB query instead of Eloquent
-    $userRaw = \DB::select("SELECT * FROM users WHERE u_username = ?", [$request->username]);
-    \Log::info('Raw query result: ' . json_encode($userRaw));
-    
+    try {
+        \DB::connection()->getPdo();
+        \Log::info('DB Connected successfully');
+        
+        $userRaw = \DB::select("SELECT * FROM users WHERE u_username = ?", [$request->username]);
+        \Log::info('Raw query result count: ' . count($userRaw));
+        \Log::info('Raw result: ' . json_encode($userRaw));
+    } catch (\Exception $e) {
+        \Log::error('DB Connection failed: ' . $e->getMessage());
+    }
+
     $user = User::where('u_username', $request->username)->first();
     \Log::info('User found: ' . ($user ? 'yes' : 'no'));
-    \Log::info('Username input: ' . $request->username);
 
     if (!$user || !Hash::check($request->password, $user->u_password)) {
-        \Log::info('Hash check: ' . ($user ? Hash::check($request->password, $user->u_password) : 'no user'));
         return back()->with('error', 'Invalid username or password.');
     }
 
-    // Store user info in session
     session(['loggedUser' => $user]);
 
-    // Redirect based on role
     if ($user->u_role === 'main_store') {
         return redirect()->route('mainstore.dashboard');
     } elseif ($user->u_role === 'sub_department') {
