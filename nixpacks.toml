@@ -5,13 +5,14 @@ nixPkgs = [
   "python311",
   "nodejs_20",
   "nodePackages.npm",
-  "gcc-unwrapped"
+  "gcc-unwrapped",
+  "zlib"
 ]
 
 [phases.install]
 cmds = [
   "python3 -m venv /app/.venv",
-  "/app/.venv/bin/pip install -r requirements.txt",
+  "LD_LIBRARY_PATH=/nix/store/$(ls /nix/store | grep gcc | grep lib | head -1)/lib /app/.venv/bin/pip install -r requirements.txt",
   "composer install --no-dev --optimize-autoloader",
   "npm ci"
 ]
