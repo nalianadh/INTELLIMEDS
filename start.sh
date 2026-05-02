@@ -4,6 +4,7 @@ set -e
 php artisan config:clear
 php artisan cache:clear
 php artisan config:cache
+php artisan session:table 2>/dev/null || true
 php artisan migrate --force
 
 # Start FastAPI using venv Python

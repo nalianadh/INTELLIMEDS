@@ -4,7 +4,8 @@ nixPkgs = [
   "php82Packages.composer",
   "python311",
   "nodejs_20",
-  "nodePackages.npm"
+  "nodePackages.npm",
+  "stdenv.cc.cc.lib"
 ]
 
 [phases.install]
