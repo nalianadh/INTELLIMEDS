@@ -5,20 +5,13 @@ nixPkgs = [
   "python311",
   "python311Packages.pip",
   "nodejs_20",
-  "nodePackages.npm",
-
-  # 🔥 REQUIRED for ML libs
-  "gcc-unwrapped",
-  "gfortran",
-  "openblas",
-  "pkg-config",
-  "stdenv.cc.cc.lib"
+  "nodePackages.npm"
 ]
 
 [phases.install]
 cmds = [
-  "pip install --upgrade pip setuptools wheel",
-  "pip install -r requirements.txt",
+  "pip install --upgrade pip setuptools wheel --break-system-packages",
+  "pip install -r requirements.txt --break-system-packages",
   "composer install --no-dev --optimize-autoloader",
   "npm ci"
 ]
@@ -31,4 +24,4 @@ cmds = [
 ]
 
 [start]
-cmd = "bash -c 'source .venv/bin/activate && bash start.sh'"
+cmd = "bash start.sh"
